@@ -46,7 +46,10 @@
     <script>
         // רישום ה-Service Worker לתמיכה במצב לא מקוון
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/service-worker.js');
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .catch(error => console.error('שגיאה ברישום Service Worker:', error));
+            });
         }
     </script>
 </body>
