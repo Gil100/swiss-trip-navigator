@@ -44,11 +44,17 @@ main {
 #map-container {
     flex: 3;
     position: relative;
+    display: block !important;
+    z-index: 1;
 }
 
 #map {
     height: 100%;
     width: 100%;
+    background-color: #e0e0e0; /* צבע רקע אפור בהיר במקרה שהתמונה לא נטענת */
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
 }
 
 #itinerary-container {
@@ -317,7 +323,7 @@ button {
     #map-container {
         flex: 1;
         min-height: 50vh; /* לפחות 50% מגובה המסך */
-        display: block;
+        display: block !important;
     }
     
     #itinerary-container {
