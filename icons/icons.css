@@ -1,0 +1,47 @@
+/* אייקונים בסיסיים עבור סוגי המיקומים במסלול */
+.icon {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.icon-waterfall { background-color: #00BCD4; }
+.icon-waterfall::after { content: "💦"; }
+
+.icon-viewpoint { background-color: #FFC107; }
+.icon-viewpoint::after { content: "👁️"; }
+
+.icon-cablecar { background-color: #F44336; }
+.icon-cablecar::after { content: "🚡"; }
+
+.icon-lake { background-color: #2196F3; }
+.icon-lake::after { content: "🏞️"; }
+
+.icon-mountain { background-color: #795548; }
+.icon-mountain::after { content: "🏔️"; }
+
+.icon-gorge { background-color: #607D8B; }
+.icon-gorge::after { content: "🏞️"; }
+
+.icon-landmark { background-color: #9C27B0; }
+.icon-landmark::after { content: "🏛️"; }
+
+.icon-monument { background-color: #E91E63; }
+.icon-monument::after { content: "🗿"; }
+
+.icon-castle { background-color: #673AB7; }
+.icon-castle::after { content: "🏰"; }
+
+.icon-parking { background-color: #3F51B5; }
+.icon-parking::after { content: "🅿️"; }
+
+.icon-city { background-color: #FF9800; }
+.icon-city::after { content: "🏙️"; }
+.icon-default { background-color: #757575; }
+.icon-default::after { content: "📍"; }

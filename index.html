@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swiss Trip Navigator</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+</head>
+<body>
+    <header>
+        <h1>Swiss Trip Navigator</h1>
+    </header>
+    
+    <main>
+        <div id="map-container">
+            <div id="map"></div>
+        </div>
+        
+        <div id="itinerary-container">
+            <h2>המסלול היומי</h2>
+            <div id="current-day-controls">
+                <button id="prev-day">הקודם</button>
+                <span id="current-day-display">יום 1</span>
+                <button id="next-day">הבא</button>
+            </div>
+            <ul id="itinerary-list"></ul>
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/itinerary.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // רישום ה-Service Worker לתמיכה במצב לא מקוון
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js');
+        }
+    </script>
+</body>
+</html>

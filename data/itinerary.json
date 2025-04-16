@@ -1,0 +1,275 @@
+{
+    "tripName": "הטיול שלי בשוויץ",
+    "days": [
+    {
+        "dayNumber": 1,
+        "date": "2025-05-30",
+        "title": "עמק לאוטרברונן",
+        "locations": [
+        {
+            "id": "loc1",
+            "title": "Staubbach Falls",
+            "time": "09:30",
+            "coordinates": [46.5939, 7.9098],
+            "description": "מפלים גבוהים בעמק לאוטרברונן",
+            "type": "waterfall",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=46.5939,7.9098"
+        },
+        {
+            "id": "loc2",
+            "title": "Trümmelbach Falls",
+            "time": "10:30",
+            "coordinates": [46.561, 7.906],
+            "description": "מפלים תת-קרקעיים בתוך ההר",
+            "type": "waterfall",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=46.561,7.906"
+        },
+        {
+            "id": "loc3",
+            "title": "Mürren Viewpoint",
+            "time": "12:00",
+            "coordinates": [46.5587, 7.8925],
+            "description": "עיירה ללא רכבים ונוף מדהים",
+            "type": "viewpoint",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=46.5587,7.8925"
+        }
+        ]
+    },
+    {
+        "dayNumber": 2,
+        "date": "2025-05-31",
+        "title": "גרינדלוולד",
+        "locations": [
+        {
+            "id": "loc4",
+            "title": "Firstbahn",
+            "time": "09:30",
+            "coordinates": [46.6242, 8.0414],
+            "description": "רכבל לגרינדלוולד – כולל Cliff Walk",
+            "type": "cablecar",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=46.6242,8.0414"
+        },
+        {
+            "id": "loc5",
+            "title": "Bachalpsee",
+            "time": "11:00",
+            "coordinates": [46.664, 8.023],
+            "description": "אגם הרים יפהפה במסלול הליכה קל",
+            "type": "lake",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=46.664,8.023"
+        }
+        ]
+    },
+    {
+        "dayNumber": 3,
+        "date": "2025-06-01",
+        "title": "הר טיטליס",
+        "locations": [
+        {
+            "id": "loc6",
+            "title": "Titlis",
+            "time": "10:30",
+            "coordinates": [46.7722, 8.437],
+            "description": "הר הקרחונים עם רכבל מסתובב ומערת קרח",
+            "type": "mountain",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=46.7722,8.437"
+        }
+        ]
+    },
+    {
+        "dayNumber": 4,
+        "date": "2025-06-02",
+        "title": "קניונים ולוצרן",
+        "locations": [
+        {
+            "id": "loc7",
+            "title": "Aare Gorge",
+            "time": "09:50",
+            "coordinates": [46.725, 8.207],
+            "description": "קניון מרשים לאורך הנהר",
+            "type": "gorge",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=46.725,8.207"
+        },
+        {
+            "id": "loc8",
+            "title": "Rosenlaui Gorge",
+            "time": "11:15",
+            "coordinates": [46.6663, 8.1292],
+            "description": "קניון קרחוני פראי ויפהפה",
+            "type": "gorge",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=46.6663,8.1292"
+        },
+        {
+            "id": "loc9",
+            "title": "Lucerne – Chapel Bridge",
+            "time": "13:00",
+            "coordinates": [47.0516, 8.3074],
+            "description": "גשר הקפלה בעיר העתיקה של לוצרן",
+            "type": "landmark",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=47.0516,8.3074"
+        },
+        {
+            "id": "loc10",
+            "title": "Lion Monument",
+            "time": "14:00",
+            "coordinates": [47.0586, 8.3105],
+            "description": "פסל האריה בלוצרן",
+            "type": "monument",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=47.0586,8.3105"
+        }
+        ]
+    },
+    {
+        "dayNumber": 5,
+        "date": "2025-06-03",
+        "title": "הרכבת להרים ותצפית אינטרלאקן",
+        "locations": [
+        {
+            "id": "loc11",
+            "title": "Kleine Scheidegg",
+            "time": "10:00",
+            "coordinates": [46.5853, 7.9616],
+            "description": "תצפית נוף בתחנת הרכבת ההררית",
+            "type": "viewpoint",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=46.5853,7.9616"
+        },
+        {
+            "id": "loc12",
+            "title": "Harder Kulm",
+            "time": "16:30",
+            "coordinates": [46.6908, 7.8541],
+            "description": "תצפית שקיעה מעל אינטרלאקן",
+            "type": "viewpoint",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=46.6908,7.8541"
+        }
+        ]
+    },
+    {
+        "dayNumber": 6,
+        "date": "2025-06-04",
+        "title": "אגמים כחולים",
+        "locations": [
+        {
+            "id": "loc13",
+            "title": "Spiez Castle",
+            "time": "10:00",
+            "coordinates": [46.6837, 7.6917],
+            "description": "טירה ציורית על שפת האגם",
+            "type": "castle",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=46.6837,7.6917"
+        },
+        {
+            "id": "loc14",
+            "title": "Blausee",
+            "time": "11:30",
+            "coordinates": [46.5449, 7.6906],
+            "description": "אגם קטן עם מים טורקיז",
+            "type": "lake",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=46.5449,7.6906"
+        },
+        {
+            "id": "loc15",
+            "title": "Oeschinensee",
+            "time": "13:00",
+            "coordinates": [46.498, 7.713],
+            "description": "אגם הרים עם רכבל ונוף עוצר נשימה",
+            "type": "lake",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=46.498,7.713"
+        }
+        ]
+    },
+    {
+        "dayNumber": 7,
+        "date": "2025-06-05",
+        "title": "פסגות ועירות עתיקות",
+        "locations": [
+        {
+            "id": "loc16",
+            "title": "Schynige Platte",
+            "time": "09:30",
+            "coordinates": [46.6595, 7.9075],
+            "description": "רכבת נוף לפסגה וגן אלפיני",
+            "type": "viewpoint",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=46.6595,7.9075"
+        },
+        {
+            "id": "loc17",
+            "title": "Thun Castle",
+            "time": "15:30",
+            "coordinates": [46.7573, 7.627],
+            "description": "טירה בעיר העתיקה עם נוף לאגם",
+            "type": "castle",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=46.7573,7.627"
+        }
+        ]
+    },
+    {
+        "dayNumber": 8,
+        "date": "2025-06-06",
+        "title": "זרמט והמטרהורן",
+        "locations": [
+        {
+            "id": "loc18",
+            "title": "Täsch Terminal",
+            "time": "10:00",
+            "coordinates": [46.0735, 7.7803],
+            "description": "חניון רכבים ותחנת רכבת ל-Zermatt",
+            "type": "parking",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=46.0735,7.7803"
+        },
+        {
+            "id": "loc19",
+            "title": "Zermatt Center",
+            "time": "10:30",
+            "coordinates": [46.0207, 7.7491],
+            "description": "עיירה אלפינית ייחודית ללא רכבים",
+            "type": "city",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=46.0207,7.7491"
+        },
+        {
+            "id": "loc20",
+            "title": "Matterhorn Viewpoint",
+            "time": "12:00",
+            "coordinates": [46.0204, 7.7411],
+            "description": "תצפית על המטרהורן ממרכז זרמט",
+            "type": "viewpoint",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=46.0204,7.7411"
+        },
+        {
+            "id": "loc21",
+            "title": "Sunnegga Funicular (אופציונלי)",
+            "time": "13:00",
+            "coordinates": [46.0272, 7.7495],
+            "description": "רכבל קצר לנוף מרהיב",
+            "type": "cablecar",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=46.0272,7.7495"
+        }
+        ]
+    },
+    {
+        "dayNumber": 9,
+        "date": "2025-06-07",
+        "title": "הרכבל התלול והאגם",
+        "locations": [
+        {
+            "id": "loc22",
+            "title": "Gelmerbahn",
+            "time": "10:00",
+            "coordinates": [46.6164, 8.3242],
+            "description": "הרכבל התלול ביותר באירופה",
+            "type": "cablecar",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=46.6164,8.3242"
+        },
+        {
+            "id": "loc23",
+            "title": "Gelmersee Loop",
+            "time": "11:00",
+            "coordinates": [46.609, 8.328],
+            "description": "מסלול הליכה סביב אגם Gelmer",
+            "type": "lake",
+            "navigationLink": "https://www.google.com/maps/dir/?api=1&destination=46.609,8.328"
+        }
+        ]
+    }
+    ]
+}

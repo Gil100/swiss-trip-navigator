@@ -1,0 +1,218 @@
+/* משתנים גלובליים */
+:root {
+    --primary-color: #e53935;
+    --text-color: #333;
+    --bg-color: #f5f5f5;
+    --header-height: 60px;
+    --shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    direction: rtl;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: var(--header-height);
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    z-index: 1000;
+    box-shadow: var(--shadow);
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - var(--header-height));
+    margin-top: var(--header-height);
+}
+
+#map-container {
+    flex: 3;
+    position: relative;
+}
+
+#map {
+    height: 100%;
+    width: 100%;
+}
+
+#itinerary-container {
+    flex: 2;
+    overflow-y: auto;
+    padding: 1rem;
+    background-color: white;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#current-day-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1rem 0;
+}
+
+button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#itinerary-list {
+    list-style-type: none;
+}
+
+.itinerary-item {
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.itinerary-item:hover {
+    background-color: #f9f9f9;
+}
+
+.itinerary-time {
+    font-weight: bold;
+    margin-left: 0.5rem;
+}
+
+/* מדיה קוורי למסכים גדולים יותר */
+@media (min-width: 768px) {
+    main {
+        flex-direction: row;
+    }
+    
+    #itinerary-container {
+        width: 350px;
+        box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* סגנון לאייקונים של סוגי המיקומים */
+.location-icon {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-left: 0.5rem;
+}
+
+/* צבעים לסוגי מיקומים */
+.waterfall { background-color: #00BCD4; }
+.viewpoint { background-color: #FFC107; }
+.lake { background-color: #2196F3; }
+.mountain { background-color: #795548; }
+.castle { background-color: #673AB7; }
+.cablecar { background-color: #F44336; }
+.gorge { background-color: #607D8B; }
+.landmark { background-color: #9C27B0; }
+.monument { background-color: #E91E63; }
+.parking { background-color: #3F51B5; }
+.city { background-color: #FF9800; }
+.default { background-color: #757575; }
+
+/* סגנון לכפתור הניווט בתפריט המיקומים */
+.nav-link {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.8rem;
+    margin-right: 0.5rem;
+}
+
+/* הצללה למסך כשיש תפריט פתוח */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    display: none;
+}
+
+/* תפריט בחירת אפליקציית ניווט */
+.nav-options {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 101;
+    text-align: center;
+}
+
+.nav-title {
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+
+.nav-buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+.nav-buttons button {
+    padding: 0.5rem 1rem;
+    margin: 0 0.5rem;
+}
+
+/* סגנונים להתאמה למובייל */
+.toggle-button {
+    position: absolute;
+    left: 1rem;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.hidden {
+    display: none;
+}
+
+@media (max-width: 767px) {
+    #itinerary-container {
+        position: fixed;
+        top: var(--header-height);
+        right: 0;
+        bottom: 0;
+        width: 80%;
+        max-width: 300px;
+        z-index: 99;
+        transform: translateX(0);
+        transition: transform 0.3s ease;
+    }
+    
+    #itinerary-container.hidden {
+        transform: translateX(100%);
+    }
+}
