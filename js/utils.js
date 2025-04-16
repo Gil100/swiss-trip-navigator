@@ -4,10 +4,10 @@ function isCurrentDate(dateStr) {
     const date = new Date(dateStr);
     
     return today.getFullYear() === date.getFullYear() &&
-           today.getMonth() === date.getMonth() &&
-           today.getDate() === date.getDate();
+        today.getMonth() === date.getMonth() &&
+        today.getDate() === date.getDate();
 }
-  
+
 // פונקציה לחישוב היום הנוכחי של הטיול לפי התאריכים
 function getCurrentDayIndex(days) {
     // בדיקה אם היום הנוכחי נמצא בטווח הטיול
@@ -34,7 +34,7 @@ function getCurrentDayIndex(days) {
     
     return closestDayIndex;
 }
-  
+
 // פונקציה להוספת קישור ניווט
 function getNavigationLink(coordinates, platform = 'google') {
     const [lat, lng] = coordinates;
@@ -47,7 +47,7 @@ function getNavigationLink(coordinates, platform = 'google') {
     
     return '';
 }
-  
+
 // פונקציה להמרת תאריך למחרוזת מותאמת
 function formatDate(dateStr) {
     const date = new Date(dateStr);
@@ -57,12 +57,12 @@ function formatDate(dateStr) {
     
     return `${day}/${month}/${year}`;
 }
-  
+
 // פונקציה לבדיקה אם מכשיר הוא נייד
 function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
-  
+
 // פונקציה ליצירת אייקון טקסט כברירת מחדל
 function createTextIcon(text, bgColor = '#e53935') {
     const div = document.createElement('div');
