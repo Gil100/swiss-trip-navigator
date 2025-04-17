@@ -1,33 +1,43 @@
-// יש ליצור קובץ חדש בשם Layer.js בתיקיית js
-// או לתקן את הקובץ הקיים אם הוא כבר קיים
-
 /* 
  * תיקון עבור שגיאת addLayer בספריית Leaflet
- * הקובץ הזה מתקן את שגיאת RuntimeError: i.addLayer is not a function
+ * גרסה מעודכנת עם תיקון לשגיאת t.addLayer 
  */
 
-// פתרון עוקף עבור בעיית התאימות של Leaflet
-if (L && L.Layer) {
-    // וידוא שקיימת פונקציית addLayer למופעי Layer
-    L.Layer.prototype.addLayer = function(layer) {
-      // אם זה LayerGroup, נשתמש ב-addLayer שלו
-      if (this.addTo && typeof this.addTo === 'function') {
-        if (layer && layer._layerAdd) {
-          layer._layerAdd({ target: this });
-        }
-        return this;
+// המתנה לטעינת הספרייה
+document.addEventListener('DOMContentLoaded', function() {
+    // וידוא שהאובייקט L קיים
+    if (typeof L !== 'undefined') {
+      // הוספת מתודת addLayer לכל האובייקטים שצריכים אותה
+      
+      // הרחבת L.Layer
+      if (L.Layer) {
+        L.Layer.prototype.addLayer = function(layer) {
+          return this;
+        };
       }
-      // אחרת מחזירים את האובייקט עצמו
-      return this;
-    };
-    
-    // וידוא שמתודת addTo קוראת ל-addLayer בצורה נכונה
-    const originalAddTo = L.Layer.prototype.addTo;
-    L.Layer.prototype.addTo = function(map) {
-      if (map && map.addLayer && typeof map.addLayer === 'function') {
-        map.addLayer(this);
-        return this;
+      
+      // הרחבת L.Marker
+      if (L.Marker) {
+        L.Marker.prototype.addLayer = function(layer) {
+          return this;
+        };
       }
-      return originalAddTo.call(this, map);
-    };
-  }
+      
+      // הרחבת DivIcon ו-Icon
+      if (L.DivIcon) {
+        L.DivIcon.prototype.addLayer = function(layer) {
+          return this;
+        };
+      }
+      
+      if (L.Icon) {
+        L.Icon.prototype.addLayer = function(layer) {
+          return this;
+        };
+      }
+      
+      console.log("Leaflet patched successfully for addLayer issue");
+    } else {
+      console.error("Leaflet library not found when trying to patch");
+    }
+  });

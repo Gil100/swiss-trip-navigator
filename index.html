@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Swiss Trip Navigator</title>
+    <!-- הוספת favicon -->
+    <link rel="icon" href="icons/icon-192.png" type="image/png">
+    <link rel="shortcut icon" href="icons/icon-192.png" type="image/png">
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
@@ -38,9 +41,11 @@
         </div>
     </main>
 
+    <!-- טעינת ספריות וקבצי קוד - סדר חשוב! -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <!-- הוספת Layer.js לתיקון השגיאה -->
+    <!-- טעינת תיקון Layer.js לפני שאר הקבצים -->
     <script src="js/Layer.js"></script>
+    <!-- טעינת קבצי האפליקציה -->
     <script src="js/utils.js"></script>
     <script src="js/itinerary.js"></script>
     <script src="js/map.js"></script>
