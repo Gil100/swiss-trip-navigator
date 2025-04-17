@@ -1,4 +1,5 @@
 let markers = [];
+let routeLine = null;
 
 // הוספת תמונת רקע כשהמפה לא נטענת
 function addBackgroundImage() {
@@ -10,9 +11,11 @@ function addBackgroundImage() {
   }
 }
 
-// אתחול המפה
+// אתחול המפה - גרסה פשוטה יותר
 function initMap() {
   try {
+    console.log("Initializing map...");
+    
     // הוספת תמונת רקע
     addBackgroundImage();
     
@@ -22,38 +25,32 @@ function initMap() {
       return;
     }
     
-    // ודא שספריית Leaflet וה-mapServices זמינים
-    if (typeof L === 'undefined' || !window.mapServices) {
-      console.error('ספריית Leaflet או mapServices לא נטענו');
+    // ודא שספריית Leaflet נטענה
+    if (typeof L === 'undefined') {
+      console.error('ספריית Leaflet לא נטענה');
       return;
     }
     
-    // יצירת מפה חדשה באמצעות mapServices
-    window.map = window.mapServices.createMap('map', {
-      center: [46.8182, 8.2275],
-      zoom: 8,
-      zoomControl: true
-    });
-    
-    // הוספת שכבת מפה
-    try {
+    // המתן לאובייקט העזר
+    if (!window.mapHelper) {
+      console.warn("mapHelper לא זמין, יוצר מפה ישירות");
+      
+      // יצירת מפה ישירות
+      window.map = L.map('map').setView([46.8182, 8.2275], 8);
+      
+      // הוספת שכבת מפה
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       }).addTo(window.map);
-    } catch (e) {
-      console.error('שגיאה בהוספת שכבת מפה:', e);
+    } else {
+      // יצירת מפה באמצעות האובייקט העזר
+      window.map = window.mapHelper.createMap('map');
     }
     
     // הצגת היום הנוכחי על המפה
     if (appState.isDataLoaded) {
       updateMapForDay(appState.itineraryData.days[appState.currentDayIndex]);
     }
-    
-    // ניטור אירועים שמעידים על בעיות טעינה
-    window.map.on('error', function(e) {
-      console.error('שגיאה במפה:', e);
-    });
     
     console.log('המפה אותחלה בהצלחה');
     
@@ -62,9 +59,11 @@ function initMap() {
   }
 }
 
-// עדכון המפה עבור יום מסוים
+// עדכון המפה עבור יום מסוים - גרסה פשוטה יותר
 function updateMapForDay(day) {
   try {
+    console.log("Updating map for day:", day.dayNumber);
+    
     // בדיקה אם המפה אותחלה
     if (!window.map) {
       console.error('המפה לא אותחלה');
@@ -76,18 +75,28 @@ function updateMapForDay(day) {
     
     // הוספת סמנים חדשים
     const bounds = L.latLngBounds();
+    let validMarkersCount = 0;
     
     day.locations.forEach(location => {
       const marker = createMarker(location, day);
       if (marker) {
         markers.push(marker);
         bounds.extend(marker.getLatLng());
+        validMarkersCount++;
       }
     });
     
     // התאמת התצוגה לכל הסמנים
-    if (markers.length > 0) {
-      window.map.fitBounds(bounds, { padding: [30, 30] });
+    if (validMarkersCount > 0) {
+      try {
+        window.map.fitBounds(bounds, { padding: [30, 30] });
+      } catch (e) {
+        console.warn("Error fitting bounds:", e);
+        // גיבוי - התמקדות על הנקודה הראשונה
+        if (day.locations.length > 0) {
+          window.map.setView(day.locations[0].coordinates, 10);
+        }
+      }
     }
     
     // יצירת קו המחבר את הנקודות
@@ -98,25 +107,56 @@ function updateMapForDay(day) {
   }
 }
 
-// יצירת סמן על המפה
+// יצירת סמן על המפה - גרסה פשוטה יותר
 function createMarker(location, day) {
   try {
-    // בחירת אייקון מתאים לפי סוג המיקום
-    const icon = L.divIcon({
-      className: `map-icon ${location.type || 'default'}`,
-      iconSize: [40, 40],
-      iconAnchor: [20, 20],
-      popupAnchor: [0, -20],
-      html: `<div class="icon-inner"></div>`
-    });
+    console.log(`Creating marker for ${location.title}`);
     
-    // יצירת סמן באמצעות mapServices
-    const marker = window.mapServices.createMarker(window.map, location.coordinates, { icon });
+    // בדיקה שיש קואורדינטות תקינות
+    if (!location.coordinates || location.coordinates.length !== 2) {
+      console.error("Invalid coordinates for:", location.title);
+      return null;
+    }
     
-    // במקרה שיצירת הסמן נכשלה, ננסה ליצור סמן בסיסי
+    let marker = null;
+    const [lat, lng] = location.coordinates;
+    
+    // בדיקה אם יש לנו אובייקט עזר
+    if (window.mapHelper) {
+      // שימוש באובייקט עזר
+      const icon = window.mapHelper.createCustomIcon(location.type);
+      marker = window.mapHelper.addMarker(lat, lng, { icon });
+    } else {
+      // ניסיון ישיר באמצעות Leaflet
+      try {
+        const icon = L.divIcon({
+          className: `map-icon ${location.type || 'default'}`,
+          iconSize: [40, 40],
+          iconAnchor: [20, 20],
+          popupAnchor: [0, -20],
+          html: `<div class="icon-inner"></div>`
+        });
+        
+        marker = L.marker([lat, lng], { icon });
+        marker.addTo(window.map);
+      } catch (e) {
+        console.warn("Error creating custom marker, trying basic marker:", e);
+        
+        // ניסיון ליצור סמן בסיסי
+        try {
+          marker = L.marker([lat, lng]);
+          marker.addTo(window.map);
+        } catch (e2) {
+          console.error("Failed to create even basic marker:", e2);
+          return null;
+        }
+      }
+    }
+    
+    // אם הסמן לא נוצר, החזר null
     if (!marker) {
-      console.warn('נכשלה יצירת סמן מותאם, מנסה סמן בסיסי');
-      return window.mapServices.createMarker(window.map, location.coordinates);
+      console.error("Failed to create marker for:", location.title);
+      return null;
     }
     
     // מידע מורחב בחלון המידע
@@ -139,75 +179,125 @@ function createMarker(location, day) {
     }
     
     // הוספת חלון מידע שיוצג בלחיצה על הסמן
-    marker.bindPopup(`
-      <div class="marker-popup">
-        <h3>${location.title}</h3>
-        <p>${location.description}</p>
-        ${nextLocationInfo}
-        <button class="popup-nav-link" onclick="openNavigation({
-          coordinates: [${location.coordinates[0]}, ${location.coordinates[1]}],
-          title: '${location.title.replace(/'/g, "\\'")}'
-        })">פתח בניווט</button>
-      </div>
-    `);
-    
-    // הוספת אירוע לחיצה שיסמן את הפריט ברשימה
-    marker.on('click', () => {
-      highlightItineraryItem(location.id);
-    });
+    try {
+      marker.bindPopup(`
+        <div class="marker-popup">
+          <h3>${location.title}</h3>
+          <p>${location.description}</p>
+          ${nextLocationInfo}
+          <button class="popup-nav-link" onclick="openNavigation({
+            coordinates: [${location.coordinates[0]}, ${location.coordinates[1]}],
+            title: '${location.title.replace(/'/g, "\\'")}'
+          })">פתח בניווט</button>
+        </div>
+      `);
+      
+      // הוספת אירוע לחיצה שיסמן את הפריט ברשימה
+      marker.on('click', () => {
+        highlightItineraryItem(location.id);
+      });
+    } catch (e) {
+      console.warn("Error binding popup to marker:", e);
+    }
     
     return marker;
   } catch (error) {
-    console.error("Error creating marker:", error);
-    // ניסיון אחרון - יצירת סמן בסיסי
-    try {
-      return window.mapServices.createMarker(window.map, location.coordinates);
-    } catch (e) {
-      console.error("Critical error creating marker:", e);
-      return null;
-    }
+    console.error("Critical error creating marker:", error);
+    return null;
   }
 }
 
-// ניקוי סמנים
+// ניקוי סמנים - גרסה פשוטה יותר
 function clearMarkers() {
   try {
-    if (!window.map || !window.mapServices) return;
+    console.log("Clearing markers...");
     
+    if (!window.map) return;
+    
+    // הסרת כל הסמנים
     markers.forEach(marker => {
-      if (marker) {
-        window.mapServices.removeLayer(window.map, marker);
+      if (!marker) return;
+      
+      try {
+        if (window.mapHelper) {
+          window.mapHelper.removeLayer(marker);
+        } else if (typeof marker.remove === 'function') {
+          marker.remove();
+        } else {
+          window.map.removeLayer(marker);
+        }
+      } catch (e) {
+        console.warn("Error removing marker:", e);
       }
     });
+    
     markers = [];
     
     // הסרת קו המסלול אם קיים
-    if (window.routeLine) {
-      window.mapServices.removeLayer(window.map, window.routeLine);
-      window.routeLine = null;
+    if (routeLine) {
+      try {
+        if (window.mapHelper) {
+          window.mapHelper.removeLayer(routeLine);
+        } else if (typeof routeLine.remove === 'function') {
+          routeLine.remove();
+        } else {
+          window.map.removeLayer(routeLine);
+        }
+      } catch (e) {
+        console.warn("Error removing route line:", e);
+      }
+      
+      routeLine = null;
     }
+    
+    console.log("All markers cleared");
   } catch (error) {
     console.error('שגיאה בניקוי סמנים:', error);
   }
 }
 
-// יצירת קו המחבר את נקודות המסלול
+// יצירת קו המחבר את נקודות המסלול - גרסה פשוטה יותר
 function createRouteLine(locations) {
   try {
-    if (!window.map || !window.mapServices) return;
+    console.log("Creating route line...");
+    
+    if (!window.map) return;
     
     const points = locations.map(loc => loc.coordinates);
     
-    if (points.length > 1) {
-      const polylineOptions = {
-        color: '#e53935',
-        weight: 3,
-        opacity: 0.7,
-        dashArray: '5, 10'
-      };
-      
-      window.routeLine = window.mapServices.createPolyline(window.map, points, polylineOptions);
+    if (points.length < 2) {
+      console.log("Not enough points for route line");
+      return;
     }
+    
+    const polylineOptions = {
+      color: '#e53935',
+      weight: 3,
+      opacity: 0.7,
+      dashArray: '5, 10'
+    };
+    
+    // יצירת קו המסלול
+    if (window.mapHelper) {
+      routeLine = window.mapHelper.addPolyline(points, polylineOptions);
+    } else {
+      try {
+        routeLine = L.polyline(points, polylineOptions);
+        routeLine.addTo(window.map);
+      } catch (e) {
+        console.warn("Error adding polyline with addTo:", e);
+        
+        try {
+          routeLine = L.polyline(points, polylineOptions);
+          window.map.addLayer(routeLine);
+        } catch (e2) {
+          console.error("Failed to add polyline with both methods:", e2);
+          routeLine = null;
+        }
+      }
+    }
+    
+    console.log("Route line created:", routeLine ? "success" : "failed");
   } catch (error) {
     console.error('שגיאה ביצירת קו מסלול:', error);
   }
@@ -216,18 +306,27 @@ function createRouteLine(locations) {
 // התמקדות על נקודה במפה
 function focusLocationOnMap(location) {
   try {
+    console.log(`Focusing on location: ${location.title}`);
+    
     if (!window.map) return;
     
-    window.map.setView(location.coordinates, 14);
-    
-    // מציאת הסמן המתאים ופתיחת החלון המידע שלו
-    const marker = markers.find(m => 
-      m.getLatLng().lat === location.coordinates[0] && 
-      m.getLatLng().lng === location.coordinates[1]
-    );
-    
-    if (marker) {
-      marker.openPopup();
+    try {
+      window.map.setView(location.coordinates, 14);
+      
+      // מציאת הסמן המתאים ופתיחת החלון המידע שלו
+      const marker = markers.find(m => 
+        m && m.getLatLng && 
+        m.getLatLng().lat === location.coordinates[0] && 
+        m.getLatLng().lng === location.coordinates[1]
+      );
+      
+      if (marker) {
+        marker.openPopup();
+      }
+      
+      console.log("Focus complete");
+    } catch (e) {
+      console.error("Error focusing on location:", e);
     }
   } catch (error) {
     console.error('שגיאה בהתמקדות על מיקום:', error);
