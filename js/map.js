@@ -22,14 +22,25 @@ function initMap() {
       return;
     }
     
+    // ודא שספריית Leaflet נטענה
+    if (typeof L === 'undefined') {
+      console.error('ספריית Leaflet לא נטענה');
+      return;
+    }
+    
     // יצירת מפה חדשה וממורכזת בשוויץ
-    window.map = L.map('map').setView([46.8182, 8.2275], 8);
+    window.map = L.map('map', {
+      center: [46.8182, 8.2275],
+      zoom: 8,
+      zoomControl: true,
+      attributionControl: true
+    });
     
     // הוספת שכבת מפה
-    const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    });
-    window.map.addLayer(tileLayer);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19
+    }).addTo(window.map);
     
     // הצגת היום הנוכחי על המפה
     if (appState.isDataLoaded) {
@@ -38,8 +49,10 @@ function initMap() {
     
     // ניטור אירועים שמעידים על בעיות טעינה
     window.map.on('error', function(e) {
-      console.error('שגיאה בטעינת המפה:', e);
+      console.error('שגיאה במפה:', e);
     });
+    
+    console.log('המפה אותחלה בהצלחה');
     
   } catch (error) {
     console.error('שגיאה באתחול המפה:', error);
@@ -92,12 +105,9 @@ function createMarker(location, day) {
       html: `<div class="icon-inner"></div>`
     });
     
-    // יצירת סמן ללא אייקון ואז הוספת אייקון ידנית
-    const marker = L.marker(location.coordinates);
-    marker.setIcon(icon);
-    
-    // הוספה למפה בצורה מפורשת
-    window.map.addLayer(marker);
+    // יצירת סמן עם האייקון והוספתו למפה בגישה סטנדרטית
+    const marker = L.marker(location.coordinates, { icon });
+    marker.addTo(window.map);  // גישה סטנדרטית של Leaflet
     
     // מידע מורחב בחלון המידע
     let nextLocationInfo = '';
@@ -140,7 +150,9 @@ function createMarker(location, day) {
   } catch (error) {
     console.error("Error creating marker:", error);
     // יצירת סמן בסיסי במקרה של שגיאה
-    return L.marker(location.coordinates).addTo(window.map);
+    const fallbackMarker = L.marker(location.coordinates);
+    fallbackMarker.addTo(window.map);
+    return fallbackMarker;
   }
 }
 
@@ -149,12 +161,16 @@ function clearMarkers() {
   try {
     if (!window.map) return;
     
-    markers.forEach(marker => window.map.removeLayer(marker));
+    markers.forEach(marker => {
+      if (marker) {
+        marker.remove(); // השתמש ב-remove() במקום window.map.removeLayer
+      }
+    });
     markers = [];
     
     // הסרת קו המסלול אם קיים
     if (window.routeLine) {
-      window.map.removeLayer(window.routeLine);
+      window.routeLine.remove(); // השתמש ב-remove() במקום window.map.removeLayer
       window.routeLine = null;
     }
   } catch (error) {
@@ -178,7 +194,7 @@ function createRouteLine(locations) {
       };
       
       window.routeLine = L.polyline(points, polylineOptions);
-      window.map.addLayer(window.routeLine);
+      window.routeLine.addTo(window.map); // השתמש ב-addTo במקום addLayer
     }
   } catch (error) {
     console.error('שגיאה ביצירת קו מסלול:', error);
