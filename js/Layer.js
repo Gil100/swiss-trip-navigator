@@ -1,72 +1,65 @@
-/* 
- * תיקון עבור שגיאת addLayer בספריית Leaflet
- * גרסה מעודכנת עם תיקון לשגיאת t.addLayer 
- */
+// תיקון עמוק יותר עבור שגיאת addLayer בספריית Leaflet
 
-// המתנה לטעינת הספרייה
-document.addEventListener('DOMContentLoaded', function() {
-    // וידוא שהאובייקט L קיים
-    if (typeof L !== 'undefined') {
-      console.log("Leaflet loaded, applying patches...");
-      
-      // הרחבת L.Layer
-      if (L.Layer) {
-        if (!L.Layer.prototype.addLayer) {
-          L.Layer.prototype.addLayer = function(layer) {
-            console.log("Custom addLayer called on Layer");
-            return this;
-          };
+// בדיקה האם האובייקט הגלובלי קיים והרחבתו אם כן
+if (typeof window !== 'undefined') {
+    // עטיפת הפונקציה המקורית
+    window.originalAddTo = window.originalAddTo || {};
+    
+    // המתנה לטעינת הדף
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof L !== 'undefined') {
+        console.log("Leaflet found, applying deep patches");
+        
+        // שמירת גרסאות מקוריות של פונקציות
+        if (L.Layer && L.Layer.prototype.addTo) {
+          window.originalAddTo.Layer = L.Layer.prototype.addTo;
         }
-      }
-      
-      // הרחבת L.Marker
-      if (L.Marker) {
-        if (!L.Marker.prototype.addLayer) {
-          L.Marker.prototype.addLayer = function(layer) {
-            console.log("Custom addLayer called on Marker");
-            return this;
-          };
-        }
-      }
-      
-      // הרחבת DivIcon ו-Icon
-      if (L.DivIcon) {
-        if (!L.DivIcon.prototype.addLayer) {
-          L.DivIcon.prototype.addLayer = function(layer) {
-            console.log("Custom addLayer called on DivIcon");
-            return this;
-          };
-        }
-      }
-      
-      if (L.Icon) {
-        if (!L.Icon.prototype.addLayer) {
-          L.Icon.prototype.addLayer = function(layer) {
-            console.log("Custom addLayer called on Icon");
-            return this;
-          };
-        }
-      }
-      
-      // טיפול ב-t.addLayer בתוך addTo
-      if (L.Layer && L.Layer.prototype.addTo) {
-        const originalAddTo = L.Layer.prototype.addTo;
-        L.Layer.prototype.addTo = function(map) {
-          try {
-            if (map && map.addLayer && typeof map.addLayer === 'function') {
-              map.addLayer(this);
-              return this;
+        
+        // שכתוב מלא של פונקציית addTo
+        if (L.Layer) {
+          L.Layer.prototype.addTo = function(map) {
+            try {
+              if (map && typeof map.addLayer === 'function') {
+                map.addLayer(this);
+                return this;
+              }
+            } catch (error) {
+              console.warn("Error in patched addTo, using fallback:", error);
             }
-          } catch (e) {
-            console.warn("Error in patched addTo:", e);
+            
+            // ניסיון להשתמש בפונקציה המקורית אם היא שמורה
+            if (window.originalAddTo.Layer) {
+              return window.originalAddTo.Layer.call(this, map);
+            }
+            
+            // תוספת חדשה: טיפול במקרה קצה כשהאובייקט הוא Icon
+            if (this._icon || this.options && this.options.html) {
+              console.log("Detected icon object, using direct map assignment");
+              if (map && map._panes) {
+                this._map = map;
+                return this;
+              }
+            }
+            
+            return this;
+          };
+        }
+  
+        // טיפול בכל סוגי האובייקטים שעלולים לגרום לשגיאה
+        ['Marker', 'CircleMarker', 'Path', 'Polyline', 'Polygon', 'ImageOverlay', 'SVGOverlay', 'DivIcon', 'Icon'].forEach(function(className) {
+          if (L[className] && L[className].prototype) {
+            if (!L[className].prototype.addLayer) {
+              L[className].prototype.addLayer = function() { return this; };
+            }
           }
-          // נסה בשיטה המקורית אם הטיפול שלנו נכשל
-          return originalAddTo.call(this, map);
-        };
+        });
+        
+        // הוספת פונקציית עזר זו כדי לטפל בכל האובייקטים
+        if (!L.DomUtil.addLayer) {
+          L.DomUtil.addLayer = function() { return L.DomUtil; };
+        }
+        
+        console.log("Deep Leaflet patching completed");
       }
-      
-      console.log("Leaflet patching completed successfully");
-    } else {
-      console.error("Leaflet library not found when trying to patch");
-    }
-});
+    });
+  }

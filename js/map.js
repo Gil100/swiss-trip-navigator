@@ -26,9 +26,10 @@ function initMap() {
     window.map = L.map('map').setView([46.8182, 8.2275], 8);
     
     // הוספת שכבת מפה
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(window.map);
+    });
+    window.map.addLayer(tileLayer);
     
     // הצגת היום הנוכחי על המפה
     if (appState.isDataLoaded) {
@@ -81,58 +82,66 @@ function updateMapForDay(day) {
 
 // יצירת סמן על המפה
 function createMarker(location, day) {
-  // בחירת אייקון מתאים לפי סוג המיקום
-  const icon = L.divIcon({
-    className: `map-icon ${location.type || 'default'}`,
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
-    popupAnchor: [0, -20],
-    html: `<div class="icon-inner"></div>`
-  });
-  
-  // יצירת סמן עם אייקון מותאם ללא addTo ישירות
-  const marker = L.marker(location.coordinates, { icon });
-  // הוספת הסמן למפה בנפרד
-  marker.addTo(window.map);
-  
-  // מידע מורחב בחלון המידע
-  let nextLocationInfo = '';
-  
-  // אם זה לא המיקום האחרון, הוסף מידע על המיקום הבא
-  const locationIndex = day.locations.findIndex(loc => loc.id === location.id);
-  if (locationIndex < day.locations.length - 1) {
-    const nextLocation = day.locations[locationIndex + 1];
-    const distance = calculateDistance(location.coordinates, nextLocation.coordinates);
-    const travelTime = estimateTravelTime(distance);
+  try {
+    // בחירת אייקון מתאים לפי סוג המיקום
+    const icon = L.divIcon({
+      className: `map-icon ${location.type || 'default'}`,
+      iconSize: [40, 40],
+      iconAnchor: [20, 20],
+      popupAnchor: [0, -20],
+      html: `<div class="icon-inner"></div>`
+    });
     
-    nextLocationInfo = `
-      <div class="next-location-info">
-        <p><strong>למיקום הבא:</strong> ${nextLocation.title}</p>
-        <p>מרחק משוער: ${distance.toFixed(1)} ק"מ</p>
-        <p>זמן נסיעה משוער: ${travelTime} דקות</p>
+    // יצירת סמן ללא אייקון ואז הוספת אייקון ידנית
+    const marker = L.marker(location.coordinates);
+    marker.setIcon(icon);
+    
+    // הוספה למפה בצורה מפורשת
+    window.map.addLayer(marker);
+    
+    // מידע מורחב בחלון המידע
+    let nextLocationInfo = '';
+    
+    // אם זה לא המיקום האחרון, הוסף מידע על המיקום הבא
+    const locationIndex = day.locations.findIndex(loc => loc.id === location.id);
+    if (locationIndex < day.locations.length - 1) {
+      const nextLocation = day.locations[locationIndex + 1];
+      const distance = calculateDistance(location.coordinates, nextLocation.coordinates);
+      const travelTime = estimateTravelTime(distance);
+      
+      nextLocationInfo = `
+        <div class="next-location-info">
+          <p><strong>למיקום הבא:</strong> ${nextLocation.title}</p>
+          <p>מרחק משוער: ${distance.toFixed(1)} ק"מ</p>
+          <p>זמן נסיעה משוער: ${travelTime} דקות</p>
+        </div>
+      `;
+    }
+    
+    // הוספת חלון מידע שיוצג בלחיצה על הסמן
+    marker.bindPopup(`
+      <div class="marker-popup">
+        <h3>${location.title}</h3>
+        <p>${location.description}</p>
+        ${nextLocationInfo}
+        <button class="popup-nav-link" onclick="openNavigation({
+          coordinates: [${location.coordinates[0]}, ${location.coordinates[1]}],
+          title: '${location.title.replace(/'/g, "\\'")}'
+        })">פתח בניווט</button>
       </div>
-    `;
+    `);
+    
+    // הוספת אירוע לחיצה שיסמן את הפריט ברשימה
+    marker.on('click', () => {
+      highlightItineraryItem(location.id);
+    });
+    
+    return marker;
+  } catch (error) {
+    console.error("Error creating marker:", error);
+    // יצירת סמן בסיסי במקרה של שגיאה
+    return L.marker(location.coordinates).addTo(window.map);
   }
-  
-  // הוספת חלון מידע שיוצג בלחיצה על הסמן
-  marker.bindPopup(`
-    <div class="marker-popup">
-      <h3>${location.title}</h3>
-      <p>${location.description}</p>
-      ${nextLocationInfo}
-      <button class="popup-nav-link" onclick="openNavigation({
-        coordinates: [${location.coordinates[0]}, ${location.coordinates[1]}],
-        title: '${location.title.replace(/'/g, "\\'")}'
-      })">פתח בניווט</button>
-    </div>
-  `);
-  
-  // הוספת אירוע לחיצה שיסמן את הפריט ברשימה
-  marker.on('click', () => {
-    highlightItineraryItem(location.id);
-  });
-  
-  return marker;
 }
 
 // ניקוי סמנים
@@ -161,14 +170,15 @@ function createRouteLine(locations) {
     const points = locations.map(loc => loc.coordinates);
     
     if (points.length > 1) {
-      window.routeLine = L.polyline(points, {
+      const polylineOptions = {
         color: '#e53935',
         weight: 3,
         opacity: 0.7,
         dashArray: '5, 10'
-      });
-      // הוספת הקו למפה בנפרד
-      window.routeLine.addTo(window.map);
+      };
+      
+      window.routeLine = L.polyline(points, polylineOptions);
+      window.map.addLayer(window.routeLine);
     }
   } catch (error) {
     console.error('שגיאה ביצירת קו מסלול:', error);
