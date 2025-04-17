@@ -4,12 +4,15 @@ const appState = {
     currentDayIndex: 0,
     isDataLoaded: false,
     isMobileView: window.innerWidth < 768,
-    isSidebarVisible: window.innerWidth >= 768
+    isSidebarVisible: window.innerWidth >= 768,
+    isMapInitialized: false
 };
 
 // טעינת הנתונים בעת העלאת האפליקציה
 document.addEventListener('DOMContentLoaded', async () => {
     try {
+        console.log("App starting...");
+        
         // הצגת מסך פתיחה למשך 2 שניות
         const splashScreen = document.getElementById('splash-screen');
         if (splashScreen) {
@@ -50,17 +53,70 @@ document.addEventListener('DOMContentLoaded', async () => {
         appState.itineraryData = await response.json();
         appState.isDataLoaded = true;
         
+        console.log("Itinerary data loaded successfully");
+        
         // נסה לקבוע את היום הנוכחי לפי תאריך
         setCurrentDayBasedOnDate();
         
         // אתחול הממשק
         initUI();
         
-        // הצגת היום הנוכחי
-        showCurrentDay();
+        // אתחול המפה - הסרת תלות בספריית Leaflet
+        window.initMapPromise = new Promise((resolve) => {
+            console.log("Starting map initialization sequence");
+            
+            // ניסיון ראשון - שימוש ב-Leaflet אם קיים
+            if (window.L && typeof window.L.map === 'function') {
+                console.log("Leaflet detected, initializing map with Leaflet");
+                try {
+                    // יצירת מפה באמצעות Leaflet
+                    const mapElement = document.getElementById('map');
+                    const map = L.map(mapElement, {
+                        center: [46.8182, 8.2275],
+                        zoom: 8
+                    });
+                    
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    }).addTo(map);
+                    
+                    window.map = map;
+                    appState.isMapInitialized = true;
+                    console.log("Map initialized with Leaflet successfully");
+                    resolve(true);
+                    
+                    // מיד לאחר אתחול, הצג את היום הנוכחי
+                    showCurrentDay();
+                    return;
+                } catch (e) {
+                    console.warn("Error initializing with Leaflet:", e);
+                }
+            }
+            
+            // ניסיון שני - מפה פשוטה
+            console.log("Using simple map implementation");
+            setTimeout(() => {
+                try {
+                    initMap(); // פונקציה בקובץ map.js
+                    appState.isMapInitialized = true;
+                    resolve(true);
+                    
+                    // מיד לאחר אתחול, הצג את היום הנוכחי
+                    showCurrentDay();
+                } catch (e) {
+                    console.error("Error initializing simple map:", e);
+                    resolve(false);
+                }
+            }, 100); // המתנה קצרה לטעינת כל הסקריפטים
+        });
         
-        // אתחול המפה
-        initMap();
+        // הצגת היום הנוכחי
+        if (!appState.isMapInitialized) {
+            // הצג את רשימת המיקומים מיד, בלי להמתין למפה
+            const currentDay = appState.itineraryData.days[appState.currentDayIndex];
+            renderItineraryList(currentDay);
+        }
+        
     } catch (error) {
         console.error('שגיאה בטעינת נתוני המסלול:', error);
         document.getElementById('itinerary-list').innerHTML = 
@@ -105,6 +161,17 @@ function handleResize() {
             appState.isSidebarVisible = true;
         }
     }
+    
+    // עדכון גודל המפה אם היא קיימת
+    if (window.map && appState.isMapInitialized) {
+        if (typeof window.map.invalidateSize === 'function') {
+            try {
+                window.map.invalidateSize();
+            } catch (e) {
+                console.warn("Error resizing map:", e);
+            }
+        }
+    }
 }
 
 // הצגה/הסתרה של הסרגל הצדדי
@@ -114,9 +181,15 @@ function toggleSidebar() {
     appState.isSidebarVisible = !appState.isSidebarVisible;
     
     // במידה והסרגל הוצג, התאם את גודל המפה
-    if (appState.isSidebarVisible && appState.isMobileView && window.map) {
+    if (appState.isSidebarVisible && appState.isMobileView && window.map && appState.isMapInitialized) {
         setTimeout(() => {
-            window.map.invalidateSize();
+            if (typeof window.map.invalidateSize === 'function') {
+                try {
+                    window.map.invalidateSize();
+                } catch (e) {
+                    console.warn("Error resizing map after sidebar toggle:", e);
+                }
+            }
         }, 300); // המתן עד לסיום האנימציה
     }
 }
@@ -181,7 +254,10 @@ function initUI() {
 
 // הצגת היום הנוכחי
 function showCurrentDay() {
-    if (!appState.isDataLoaded) return;
+    if (!appState.isDataLoaded) {
+        console.warn("Data not loaded yet, can't show current day");
+        return;
+    }
     
     const currentDay = appState.itineraryData.days[appState.currentDayIndex];
     
@@ -200,6 +276,16 @@ function showCurrentDay() {
     // הצגת נקודות המסלול
     renderItineraryList(currentDay);
     
-    // עדכון המפה
-    updateMapForDay(currentDay);
+    // עדכון המפה אם היא מאותחלת
+    if (window.map && typeof updateMapForDay === 'function') {
+        try {
+            updateMapForDay(currentDay);
+        } catch (e) {
+            console.warn("Error updating map for current day:", e);
+        }
+    } else {
+        console.log("Map not ready yet, will update when initialized");
+        // שמירת היום הנוכחי לעדכון מאוחר
+        window.pendingDay = currentDay;
+    }
 }

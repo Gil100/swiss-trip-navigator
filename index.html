@@ -41,16 +41,43 @@
         </div>
     </main>
 
+    <!-- תוספת: שכבת מצב טעינה -->
+    <div id="loading-indicator" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;">
+        <div style="background-color: white; padding: 20px; border-radius: 10px; text-align: center;">
+            <div class="splash-loader" style="margin: 0 auto 10px;"></div>
+            <div>טוען...</div>
+        </div>
+    </div>
+
+    <!-- תוספת: שכבת הודעות שגיאה -->
+    <div id="error-message" style="display: none; position: fixed; top: 10px; left: 10px; right: 10px; background-color: #f44336; color: white; padding: 10px; border-radius: 5px; text-align: center; z-index: 2001;"></div>
+
     <!-- טעינת ספריות וקבצי קוד - סדר חשוב! -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <!-- טעינת תיקון Layer.js לפני שאר הקבצים -->
     <script src="js/Layer.js"></script>
+    
     <!-- טעינת קבצי האפליקציה -->
     <script src="js/utils.js"></script>
     <script src="js/itinerary.js"></script>
     <script src="js/map.js"></script>
     <script src="js/app.js"></script>
+    
     <script>
+        // טיפול בשגיאות טעינה
+        window.addEventListener('error', function(event) {
+            console.error('Script load error:', event);
+            const errorMsg = document.getElementById('error-message');
+            if (errorMsg) {
+                errorMsg.textContent = 'שגיאה בטעינת האפליקציה. נסה לרענן את הדף.';
+                errorMsg.style.display = 'block';
+                setTimeout(() => {
+                    errorMsg.style.display = 'none';
+                }, 5000);
+            }
+        }, true);
+        
         // רישום ה-Service Worker לתמיכה במצב לא מקוון
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -58,6 +85,3 @@
                     .catch(error => console.error('שגיאה ברישום Service Worker:', error));
             });
         }
-    </script>
-</body>
-</html>

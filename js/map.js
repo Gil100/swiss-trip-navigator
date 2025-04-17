@@ -7,6 +7,7 @@
 
 let markers = [];
 let routeLine = null;
+let mapInitialized = false; // Flag to track map initialization
 
 // יצירת סמן טקסט פשוט להצגה במפה
 function createSimpleMarker(lat, lng, text, color) {
@@ -359,6 +360,9 @@ function initMap() {
     // 5. הוספת קואורדינטות משורטטות על המפה
     addCoordinateLines();
     
+    // סמן את המפה כמאותחלת
+    mapInitialized = true;
+    
     // 6. הצגת היום הנוכחי על המפה
     if (appState.isDataLoaded) {
       updateMapForDay(appState.itineraryData.days[appState.currentDayIndex]);
@@ -505,8 +509,10 @@ function updateMapForDay(day) {
     console.log("Updating map for day:", day.dayNumber);
     
     // בדיקה שהמפה אותחלה
-    if (!window.map) {
-      console.error('המפה לא אותחלה');
+    if (!window.map || !mapInitialized) {
+      console.warn('המפה לא אותחלה עדיין, מדלג על עדכון');
+      // במקום לזרוק שגיאה, נזכור את היום הנוכחי ונטפל בו לאחר אתחול המפה
+      window.pendingDay = day;
       return;
     }
     
@@ -524,7 +530,11 @@ function updateMapForDay(day) {
     // התמקדות על כל הסמנים
     if (day.locations.length > 0) {
       // התמקדות על המקום הראשון כברירת מחדל
-      window.map.setView(day.locations[0].coordinates);
+      try {
+        window.map.setView(day.locations[0].coordinates);
+      } catch (e) {
+        console.warn('שגיאה בהתמקדות על המיקום הראשון:', e);
+      }
     }
     
   } catch (error) {
@@ -539,6 +549,12 @@ function createMarker(location, day) {
     
     if (!location.coordinates || location.coordinates.length !== 2) {
       console.error("Invalid coordinates for:", location.title);
+      return null;
+    }
+    
+    // בדיקה שהמפה אותחלה
+    if (!window.map || !mapInitialized) {
+      console.warn('המפה לא אותחלה עדיין, לא ניתן ליצור סמן');
       return null;
     }
     
@@ -595,11 +611,61 @@ function createMarker(location, day) {
     };
     
     // יצירת סמן
-    return window.map.customAddMarker(lat, lng, { icon }, popupContent, clickHandler);
+    try {
+      return window.map.customAddMarker(lat, lng, { icon }, popupContent, clickHandler);
+    } catch (e) {
+      console.error("Error creating marker with customAddMarker:", e);
+      
+      // נסיון אלטרנטיבי ליצירת סמן פשוט
+      try {
+        const simpleMarker = createSimpleMarker(lat, lng, getTypeEmoji(location.type), getTypeColor(location.type));
+        simpleMarker.setPopupContent(popupContent);
+        return simpleMarker;
+      } catch (e2) {
+        console.error("Failed to create marker with fallback method:", e2);
+        return null;
+      }
+    }
     
   } catch (error) {
     console.error("Critical error creating marker:", error);
     return null;
+  }
+}
+
+// פונקציה לקבלת אימוג'י לפי סוג המיקום
+function getTypeEmoji(type) {
+  switch (type) {
+    case 'waterfall': return '💦';
+    case 'viewpoint': return '👁️';
+    case 'lake': return '🏞️';
+    case 'mountain': return '🏔️';
+    case 'castle': return '🏰';
+    case 'cablecar': return '🚡';
+    case 'gorge': return '🏞️';
+    case 'landmark': return '🏛️';
+    case 'monument': return '🗿';
+    case 'parking': return '🅿️';
+    case 'city': return '🏙️';
+    default: return '📍';
+  }
+}
+
+// פונקציה לקבלת צבע לפי סוג המיקום
+function getTypeColor(type) {
+  switch (type) {
+    case 'waterfall': return '#00BCD4';
+    case 'viewpoint': return '#FFC107';
+    case 'lake': return '#2196F3';
+    case 'mountain': return '#795548';
+    case 'castle': return '#673AB7';
+    case 'cablecar': return '#F44336';
+    case 'gorge': return '#607D8B';
+    case 'landmark': return '#9C27B0';
+    case 'monument': return '#E91E63';
+    case 'parking': return '#3F51B5';
+    case 'city': return '#FF9800';
+    default: return '#e53935';
   }
 }
 
@@ -608,13 +674,24 @@ function clearMarkers() {
   try {
     console.log("Clearing markers...");
     
-    if (!window.map) return;
+    if (!window.map || !mapInitialized) {
+      console.warn('המפה לא אותחלה עדיין, אין צורך לנקות סמנים');
+      markers = []; // איפוס המערך למקרה שיש בו ערכים
+      return;
+    }
     
     // הסרת כל הסמנים
     markers.forEach(marker => {
       if (marker) {
         try {
-          window.map.customRemoveMarker(marker);
+          // בדיקה אם לסמן יש פונקציית הסרה ישירה
+          if (typeof marker.remove === 'function') {
+            marker.remove();
+          } 
+          // אם לא, ננסה להשתמש בפונקציית הסרה של המפה
+          else if (window.map && typeof window.map.customRemoveMarker === 'function') {
+            window.map.customRemoveMarker(marker);
+          }
         } catch (e) {
           console.warn("Error removing marker:", e);
         }
@@ -626,7 +703,11 @@ function clearMarkers() {
     // ניקוי קו המסלול אם קיים
     if (routeLine) {
       try {
-        window.map.customRemoveMarker(routeLine);
+        if (typeof routeLine.remove === 'function') {
+          routeLine.remove();
+        } else if (window.map && typeof window.map.customRemoveMarker === 'function') {
+          window.map.customRemoveMarker(routeLine);
+        }
       } catch (e) {
         console.warn("Error removing route line:", e);
       }
@@ -651,10 +732,17 @@ function focusLocationOnMap(location) {
   try {
     console.log(`Focusing on location: ${location.title}`);
     
-    if (!window.map) return;
+    if (!window.map || !mapInitialized) {
+      console.warn('המפה לא אותחלה עדיין, לא ניתן להתמקד על מיקום');
+      return;
+    }
     
     // התמקדות על המיקום
-    window.map.setView(location.coordinates);
+    try {
+      window.map.setView(location.coordinates);
+    } catch (e) {
+      console.warn('שגיאה בהתמקדות על המיקום:', e);
+    }
     
     // חיפוש וסימון הסמן המתאים
     const marker = markers.find(m => {
@@ -701,3 +789,14 @@ function estimateTravelTime(distance) {
   const timeMinutes = Math.round(timeHours * 60);
   return timeMinutes;
 }
+
+// בדיקה אם יש יום ממתין להצגה אחרי אתחול המפה
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() {
+    if (window.pendingDay && mapInitialized && window.map) {
+      console.log("מציג יום ממתין אחרי אתחול המפה:", window.pendingDay.dayNumber);
+      updateMapForDay(window.pendingDay);
+      delete window.pendingDay;
+    }
+  }, 500); // המתנה קצרה לאחר טעינת הדף
+});
