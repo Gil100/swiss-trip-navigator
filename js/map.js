@@ -1,22 +1,12 @@
 // =====================================================
-// ULTRA-MINIMAL LEAFLET MAP SOLUTION
+// BASIC MAP IMPLEMENTATION FOR SWISS TRIP NAVIGATOR
 // 
-// This version uses the most basic approaches possible
-// to ensure map functionality with minimal dependencies
+// A simple DOM-based map with markers but no background image
+// to ensure everything works reliably
 // =====================================================
 
 let markers = [];
 let routeLine = null;
-
-// הוספת תמונת רקע כשהמפה לא נטענת
-function addBackgroundImage() {
-  const mapElement = document.getElementById('map');
-  if (mapElement) {
-    mapElement.style.backgroundImage = "url('mainview.webp')";
-    mapElement.style.backgroundSize = "cover";
-    mapElement.style.backgroundPosition = "center";
-  }
-}
 
 // יצירת סמן טקסט פשוט להצגה במפה
 function createSimpleMarker(lat, lng, text, color) {
@@ -25,8 +15,8 @@ function createSimpleMarker(lat, lng, text, color) {
   markerElement.className = 'simple-marker';
   markerElement.style.backgroundColor = color || '#e53935';
   markerElement.style.color = 'white';
-  markerElement.style.width = '20px';
-  markerElement.style.height = '20px';
+  markerElement.style.width = '30px';
+  markerElement.style.height = '30px';
   markerElement.style.borderRadius = '50%';
   markerElement.style.display = 'flex';
   markerElement.style.alignItems = 'center';
@@ -37,7 +27,8 @@ function createSimpleMarker(lat, lng, text, color) {
   markerElement.style.boxShadow = '0 0 5px rgba(0,0,0,0.4)';
   markerElement.style.zIndex = '1000';
   markerElement.style.cursor = 'pointer';
-  markerElement.textContent = text || '●';
+  markerElement.style.fontSize = '16px';
+  markerElement.innerHTML = text || '●';
   
   // 2. הוספה למפה
   const mapContainer = document.getElementById('map');
@@ -73,43 +64,38 @@ function createSimpleMarker(lat, lng, text, color) {
 
 // עדכון מיקום סמן על המפה
 function updateMarkerPosition(markerElement, lat, lng) {
-  // יש להתאים את זה בהתאם לגודל המפה ולמיקום שבו אנחנו רוצים להציג
-  // כאן מדובר ברק בהדגמה בסיסית מאוד
   const mapContainer = document.getElementById('map');
   if (!mapContainer) return;
   
-  // 1. חישוב גודל המפה
+  // חישוב גודל המפה
   const mapWidth = mapContainer.offsetWidth;
   const mapHeight = mapContainer.offsetHeight;
   
-  // 2. המרת קואורדינטות לאחוזים (פשטני מאוד - לא מדויק)
-  // המרה פשוטה מ-lat/lng לאחוזים במפה (הנחה של מפה מלבנית פשוטה)
-  // קווי רוחב מ-45 עד 48 (שוויץ)
-  // קווי אורך מ-6 עד 10 (שוויץ)
-  const latRange = [45, 48]; // טווח קווי רוחב
-  const lngRange = [6, 10];  // טווח קווי אורך
+  // המרת קואורדינטות לאחוזים (מותאם לשוויץ)
+  const latRange = [45.8, 47.8]; // טווח קווי רוחב
+  const lngRange = [5.9, 10.5];  // טווח קווי אורך
   
   const latPercent = 100 - ((lat - latRange[0]) / (latRange[1] - latRange[0]) * 100);
   const lngPercent = ((lng - lngRange[0]) / (lngRange[1] - lngRange[0]) * 100);
   
-  // 3. חישוב מיקום בפיקסלים
+  // חישוב מיקום בפיקסלים
   const x = (lngPercent / 100) * mapWidth;
   const y = (latPercent / 100) * mapHeight;
   
-  // 4. עדכון מיקום הסמן
+  // עדכון מיקום הסמן
   markerElement.style.left = `${x}px`;
   markerElement.style.top = `${y}px`;
 }
 
 // הצגת חלון מידע
 function showPopup(lat, lng, content) {
-  // 1. הסרת חלון מידע קודם אם קיים
+  // הסרת חלון מידע קודם אם קיים
   const existingPopup = document.getElementById('simple-popup');
   if (existingPopup) {
     existingPopup.parentNode.removeChild(existingPopup);
   }
   
-  // 2. יצירת חלון מידע חדש
+  // יצירת חלון מידע חדש
   const popup = document.createElement('div');
   popup.id = 'simple-popup';
   popup.className = 'simple-popup';
@@ -122,7 +108,7 @@ function showPopup(lat, lng, content) {
   popup.style.maxWidth = '300px';
   popup.style.zIndex = '2000';
   
-  // 3. הוספת כפתור סגירה
+  // הוספת כפתור סגירה
   const closeButton = document.createElement('div');
   closeButton.innerHTML = '&times;';
   closeButton.style.position = 'absolute';
@@ -136,7 +122,7 @@ function showPopup(lat, lng, content) {
   };
   popup.appendChild(closeButton);
   
-  // 4. הוספה למפה ומיקום
+  // הוספה למפה ומיקום
   const mapContainer = document.getElementById('map');
   if (mapContainer) {
     mapContainer.appendChild(popup);
@@ -145,8 +131,8 @@ function showPopup(lat, lng, content) {
     const mapWidth = mapContainer.offsetWidth;
     const mapHeight = mapContainer.offsetHeight;
     
-    const latRange = [45, 48];
-    const lngRange = [6, 10];
+    const latRange = [45.8, 47.8];
+    const lngRange = [5.9, 10.5];
     
     const latPercent = 100 - ((lat - latRange[0]) / (latRange[1] - latRange[0]) * 100);
     const lngPercent = ((lng - lngRange[0]) / (lngRange[1] - lngRange[0]) * 100);
@@ -174,220 +160,240 @@ function showPopup(lat, lng, content) {
 // אתחול המפה
 function initMap() {
   try {
-    console.log("Initializing ultra-minimal map...");
+    console.log("Initializing basic map...");
     
-    // 1. הוספת תמונת רקע
-    addBackgroundImage();
-    
-    // 2. ודא שהאלמנט קיים
+    // 1. ודא שהאלמנט קיים
     if (!document.getElementById('map')) {
       console.error('אלמנט המפה לא נמצא');
       return;
     }
     
-    // 3. ליצירת מטה-אובייקט של מפה
+    // 2. הוסף רקע בסיסי למפה (ללא תמונת רקע)
+    const mapElement = document.getElementById('map');
+    mapElement.style.backgroundColor = '#e5f2fd';
+    mapElement.style.position = 'relative';
+    mapElement.style.overflow = 'hidden';
+    
+    // 3. יצירת אובייקט מפה בסיסי
     window.map = {
-      // מידע בסיסי על המפה
+      // מצב פנימי
       _center: [46.8182, 8.2275],
       _zoom: 8,
-      
-      // שמירת הסטטוס וסמנים
       _markers: [],
-      _polylines: [],
       
-      // פונקציות API
+      // API בסיסי
       setView: function(center, zoom) {
         this._center = center;
         this._zoom = zoom || this._zoom;
-        this.refreshMarkers(); // עדכון מיקום כל הסמנים
+        this.refreshMarkers();
+        return this;
+      },
+      
+      refreshMarkers: function() {
+        this._markers.forEach(marker => {
+          if (marker && marker.positionOnMap) {
+            marker.positionOnMap();
+          }
+        });
       },
       
       addMarker: function(lat, lng, options) {
-        // יצירת אייקון פשוט בהתאם לסוג המיקום
-        let markerText = '●';
-        let markerColor = '#e53935';
-        
-        if (options && options.icon && options.icon.options) {
-          const className = options.icon.options.className || '';
+        try {
+          // קביעת סוג האייקון בהתאם לסוג המיקום
+          let iconText = '📍';
+          let iconColor = '#e53935';
           
-          // קביעת צבע בהתאם לסוג המיקום
-          if (className.includes('waterfall')) {
-            markerColor = '#00BCD4';
-            markerText = '💦';
-          } else if (className.includes('viewpoint')) {
-            markerColor = '#FFC107';
-            markerText = '👁️';
-          } else if (className.includes('lake')) {
-            markerColor = '#2196F3';
-            markerText = '🏞️';
-          } else if (className.includes('mountain')) {
-            markerColor = '#795548';
-            markerText = '🏔️';
-          } else if (className.includes('castle')) {
-            markerColor = '#673AB7';
-            markerText = '🏰';
-          } else if (className.includes('cablecar')) {
-            markerColor = '#F44336';
-            markerText = '🚡';
-          } else if (className.includes('gorge')) {
-            markerColor = '#607D8B';
-            markerText = '🏞️';
-          } else if (className.includes('landmark')) {
-            markerColor = '#9C27B0';
-            markerText = '🏛️';
-          } else if (className.includes('monument')) {
-            markerColor = '#E91E63';
-            markerText = '🗿';
-          } else if (className.includes('parking')) {
-            markerColor = '#3F51B5';
-            markerText = '🅿️';
-          } else if (className.includes('city')) {
-            markerColor = '#FF9800';
-            markerText = '🏙️';
-          } else {
-            markerColor = '#757575';
-            markerText = '📍';
+          if (options && options.icon && options.icon.options) {
+            const className = options.icon.options.className || '';
+            
+            if (className.includes('waterfall')) {
+              iconColor = '#00BCD4';
+              iconText = '💦';
+            } else if (className.includes('viewpoint')) {
+              iconColor = '#FFC107';
+              iconText = '👁️';
+            } else if (className.includes('lake')) {
+              iconColor = '#2196F3';
+              iconText = '🏞️';
+            } else if (className.includes('mountain')) {
+              iconColor = '#795548';
+              iconText = '🏔️';
+            } else if (className.includes('castle')) {
+              iconColor = '#673AB7';
+              iconText = '🏰';
+            } else if (className.includes('cablecar')) {
+              iconColor = '#F44336';
+              iconText = '🚡';
+            } else if (className.includes('gorge')) {
+              iconColor = '#607D8B';
+              iconText = '🏞️';
+            } else if (className.includes('landmark')) {
+              iconColor = '#9C27B0';
+              iconText = '🏛️';
+            } else if (className.includes('monument')) {
+              iconColor = '#E91E63';
+              iconText = '🗿';
+            } else if (className.includes('parking')) {
+              iconColor = '#3F51B5';
+              iconText = '🅿️';
+            } else if (className.includes('city')) {
+              iconColor = '#FF9800';
+              iconText = '🏙️';
+            }
           }
+          
+          // יצירת סמן
+          const marker = createSimpleMarker(lat, lng, iconText, iconColor);
+          this._markers.push(marker);
+          
+          // הוספת API תואם ל-Leaflet
+          marker.bindPopup = function(content) {
+            this.setPopupContent(content);
+            return this;
+          };
+          
+          marker.on = function(event, handler) {
+            if (event === 'click') {
+              const originalClick = this.element.onclick;
+              this.element.onclick = (e) => {
+                if (originalClick) originalClick.call(this, e);
+                handler.call(this, e);
+              };
+            }
+            return this;
+          };
+          
+          marker.getLatLng = function() {
+            return { lat: this.lat, lng: this.lng };
+          };
+          
+          marker.openPopup = function() {
+            if (this.popupContent) {
+              showPopup(this.lat, this.lng, this.popupContent);
+            }
+          };
+          
+          return marker;
+        } catch (e) {
+          console.error("Error creating marker:", e);
+          return null;
         }
-        
-        // יצירת סמן פשוט
-        const marker = createSimpleMarker(lat, lng, markerText, markerColor);
-        this._markers.push(marker);
-        
-        // הוספת שיטות נוספות כדי שיתאימו לפורמט הרגיל
-        marker.bindPopup = function(content) {
-          this.setPopupContent(content);
-          return this;
-        };
-        
-        marker.on = function(event, handler) {
-          if (event === 'click') {
-            this.element.addEventListener('click', handler);
-          }
-          return this;
-        };
-        
-        marker.getLatLng = function() {
-          return { lat: this.lat, lng: this.lng };
-        };
-        
-        marker.openPopup = function() {
-          if (this.popupContent) {
-            showPopup(this.lat, this.lng, this.popupContent);
-          }
-        };
-        
-        return marker;
       },
       
       removeMarker: function(marker) {
         if (!marker) return;
         
-        // הסרת הסמן מהמפה
-        marker.remove();
-        
-        // הסרת הסמן מהרשימה
-        const index = this._markers.indexOf(marker);
-        if (index > -1) {
-          this._markers.splice(index, 1);
+        try {
+          marker.remove();
+          
+          const index = this._markers.indexOf(marker);
+          if (index > -1) {
+            this._markers.splice(index, 1);
+          }
+        } catch (e) {
+          console.warn("Error removing marker:", e);
         }
       },
       
-      clearMarkers: function() {
-        // הסרת כל הסמנים
-        this._markers.forEach(marker => marker.remove());
-        this._markers = [];
+      invalidateSize: function() {
+        this.refreshMarkers();
+        return this;
       },
       
-      refreshMarkers: function() {
-        // עדכון מיקום כל הסמנים
-        this._markers.forEach(marker => marker.positionOnMap());
-      },
-      
-      // פונקציות תואמות ל-Leaflet
+      // פונקציות תואמות ל-API שאנחנו משתמשים בו
       customAddMarker: function(lat, lng, options, popupContent, clickHandler) {
-        const marker = this.addMarker(lat, lng, options);
-        
-        if (popupContent) {
-          marker.bindPopup(popupContent);
+        try {
+          const marker = this.addMarker(lat, lng, options);
+          
+          if (marker && popupContent) {
+            marker.bindPopup(popupContent);
+          }
+          
+          if (marker && clickHandler) {
+            marker.on('click', clickHandler);
+          }
+          
+          return marker;
+        } catch (e) {
+          console.error("Error in customAddMarker:", e);
+          return null;
         }
-        
-        if (clickHandler) {
-          marker.on('click', clickHandler);
-        }
-        
-        return marker;
       },
       
       customRemoveMarker: function(marker) {
         this.removeMarker(marker);
       },
       
-      customAddPolyline: function(points, options) {
-        // פונקציה זו היא placeholder, אנחנו לא מציירים קווים בגרסה המינימלית
-        console.log("Polyline not implemented in minimal version");
-        
-        return {
-          remove: function() {} // פונקצית dummy
-        };
+      customAddPolyline: function() {
+        // פונקציה ריקה - אין תמיכה בקווים
+        return { remove: function() {} };
       },
       
-      customFitBounds: function(bounds, options) {
-        // הדממה של פעולה זו
-        console.log("FitBounds not implemented in minimal version");
-        
-        // במקום זה נשתמש בנקודה הראשונה כמרכז המפה
+      customFitBounds: function(bounds) {
+        // פונקציה ריקה - אין תמיכה בגבולות
+        // במקום זה, נתמקד על הנקודה הראשונה
         try {
-          const firstPoint = bounds.getNorthEast ? bounds.getNorthEast() : null;
-          if (firstPoint) {
-            this.setView([firstPoint.lat, firstPoint.lng]);
+          if (this._markers.length > 0) {
+            const firstMarker = this._markers[0];
+            this.setView([firstMarker.lat, firstMarker.lng]);
           }
         } catch (e) {}
       }
     };
     
-    // הצגת היום הנוכחי על המפה
+    // 4. חיזוק המפה מפני טעויות
+    Object.keys(window.map).forEach(key => {
+      const originalFn = window.map[key];
+      if (typeof originalFn === 'function') {
+        window.map[key] = function() {
+          try {
+            return originalFn.apply(this, arguments);
+          } catch (e) {
+            console.error(`Error in map.${key}:`, e);
+            return null;
+          }
+        };
+      }
+    });
+    
+    // 5. הוספת קואורדינטות משורטטות על המפה
+    addCoordinateLines();
+    
+    // 6. הצגת היום הנוכחי על המפה
     if (appState.isDataLoaded) {
       updateMapForDay(appState.itineraryData.days[appState.currentDayIndex]);
     }
     
-    console.log('המפה אותחלה בהצלחה (גרסה מינימלית)');
+    console.log('המפה אותחלה בהצלחה');
     
   } catch (error) {
     console.error('שגיאה באתחול המפה:', error);
-    
-    // יצירת מפה ריקה במקרה של כישלון
-    window.map = {
-      setView: function() {},
-      customAddMarker: function() { 
-        return { 
-          bindPopup: function() { return this; },
-          on: function() { return this; },
-          getLatLng: function() { return {lat: 0, lng: 0}; },
-          openPopup: function() {},
-          remove: function() {}
-        }; 
-      },
-      customRemoveMarker: function() {},
-      customAddPolyline: function() { return { remove: function() {} }; },
-      customFitBounds: function() {}
-    };
   }
   
   // הוספת CSS מותאם למפה
   const style = document.createElement('style');
   style.textContent = `
+    #map {
+      background-color: #e5f2fd;
+      position: relative;
+      overflow: hidden;
+    }
     .simple-marker {
-      font-size: 14px;
+      font-size: 16px;
       user-select: none;
+      text-align: center;
+      line-height: 1;
     }
     .simple-popup {
       direction: rtl;
       text-align: right;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       font-size: 14px;
-      max-height: 200px;
+      max-height: 300px;
       overflow-y: auto;
+      background-color: white;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
     }
     .simple-popup h3 {
       margin: 0 0 10px 0;
@@ -396,6 +402,13 @@ function initMap() {
     }
     .simple-popup p {
       margin: 0 0 8px 0;
+    }
+    .next-location-info {
+      margin: 10px 0;
+      padding: 8px;
+      background-color: #f9f9f9;
+      border-radius: 4px;
+      font-size: 0.9rem;
     }
     .popup-nav-link {
       display: inline-block;
@@ -409,8 +422,81 @@ function initMap() {
       font-size: 14px;
       text-decoration: none;
     }
+    .coordinate-line {
+      position: absolute;
+      background-color: rgba(200, 200, 200, 0.2);
+      z-index: 10;
+    }
+    .coordinate-label {
+      position: absolute;
+      font-size: 10px;
+      color: #666;
+      z-index: 15;
+      background-color: rgba(255, 255, 255, 0.7);
+      padding: 1px 3px;
+      border-radius: 2px;
+    }
   `;
   document.head.appendChild(style);
+}
+
+// הוספת קווי קואורדינטות לעזרה בהתמצאות
+function addCoordinateLines() {
+  const mapElement = document.getElementById('map');
+  if (!mapElement) return;
+  
+  const width = mapElement.offsetWidth;
+  const height = mapElement.offsetHeight;
+  
+  // קווי רוחב - אופקיים
+  const latitudes = [46.0, 46.5, 47.0, 47.5];
+  latitudes.forEach(lat => {
+    const line = document.createElement('div');
+    line.className = 'coordinate-line';
+    line.style.left = '0';
+    line.style.width = '100%';
+    line.style.height = '1px';
+    
+    const latRange = [45.8, 47.8];
+    const latPercent = 100 - ((lat - latRange[0]) / (latRange[1] - latRange[0]) * 100);
+    const y = (latPercent / 100) * height;
+    line.style.top = `${y}px`;
+    
+    mapElement.appendChild(line);
+    
+    // תווית
+    const label = document.createElement('div');
+    label.className = 'coordinate-label';
+    label.textContent = `${lat}°N`;
+    label.style.top = `${y - 12}px`;
+    label.style.left = '5px';
+    mapElement.appendChild(label);
+  });
+  
+  // קווי אורך - אנכיים
+  const longitudes = [6.0, 7.0, 8.0, 9.0, 10.0];
+  longitudes.forEach(lng => {
+    const line = document.createElement('div');
+    line.className = 'coordinate-line';
+    line.style.top = '0';
+    line.style.height = '100%';
+    line.style.width = '1px';
+    
+    const lngRange = [5.9, 10.5];
+    const lngPercent = ((lng - lngRange[0]) / (lngRange[1] - lngRange[0]) * 100);
+    const x = (lngPercent / 100) * width;
+    line.style.left = `${x}px`;
+    
+    mapElement.appendChild(line);
+    
+    // תווית
+    const label = document.createElement('div');
+    label.className = 'coordinate-label';
+    label.textContent = `${lng}°E`;
+    label.style.left = `${x + 5}px`;
+    label.style.top = '5px';
+    mapElement.appendChild(label);
+  });
 }
 
 // עדכון המפה ליום ספציפי
@@ -556,7 +642,7 @@ function clearMarkers() {
 
 // יצירת קו מסלול
 function createRouteLine(locations) {
-  // פונקציה ריקה - בגרסה המינימלית אין תצוגת קווים
+  // פונקציה ריקה - בגרסה הבסיסית אין תצוגת קווים
   return null;
 }
 
