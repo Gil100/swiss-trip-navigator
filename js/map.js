@@ -22,25 +22,28 @@ function initMap() {
       return;
     }
     
-    // ודא שספריית Leaflet נטענה
-    if (typeof L === 'undefined') {
-      console.error('ספריית Leaflet לא נטענה');
+    // ודא שספריית Leaflet וה-mapServices זמינים
+    if (typeof L === 'undefined' || !window.mapServices) {
+      console.error('ספריית Leaflet או mapServices לא נטענו');
       return;
     }
     
-    // יצירת מפה חדשה וממורכזת בשוויץ
-    window.map = L.map('map', {
+    // יצירת מפה חדשה באמצעות mapServices
+    window.map = window.mapServices.createMap('map', {
       center: [46.8182, 8.2275],
       zoom: 8,
-      zoomControl: true,
-      attributionControl: true
+      zoomControl: true
     });
     
     // הוספת שכבת מפה
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      maxZoom: 19
-    }).addTo(window.map);
+    try {
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
+      }).addTo(window.map);
+    } catch (e) {
+      console.error('שגיאה בהוספת שכבת מפה:', e);
+    }
     
     // הצגת היום הנוכחי על המפה
     if (appState.isDataLoaded) {
@@ -76,8 +79,10 @@ function updateMapForDay(day) {
     
     day.locations.forEach(location => {
       const marker = createMarker(location, day);
-      markers.push(marker);
-      bounds.extend(marker.getLatLng());
+      if (marker) {
+        markers.push(marker);
+        bounds.extend(marker.getLatLng());
+      }
     });
     
     // התאמת התצוגה לכל הסמנים
@@ -105,9 +110,14 @@ function createMarker(location, day) {
       html: `<div class="icon-inner"></div>`
     });
     
-    // יצירת סמן עם האייקון והוספתו למפה בגישה סטנדרטית
-    const marker = L.marker(location.coordinates, { icon });
-    marker.addTo(window.map);  // גישה סטנדרטית של Leaflet
+    // יצירת סמן באמצעות mapServices
+    const marker = window.mapServices.createMarker(window.map, location.coordinates, { icon });
+    
+    // במקרה שיצירת הסמן נכשלה, ננסה ליצור סמן בסיסי
+    if (!marker) {
+      console.warn('נכשלה יצירת סמן מותאם, מנסה סמן בסיסי');
+      return window.mapServices.createMarker(window.map, location.coordinates);
+    }
     
     // מידע מורחב בחלון המידע
     let nextLocationInfo = '';
@@ -149,28 +159,31 @@ function createMarker(location, day) {
     return marker;
   } catch (error) {
     console.error("Error creating marker:", error);
-    // יצירת סמן בסיסי במקרה של שגיאה
-    const fallbackMarker = L.marker(location.coordinates);
-    fallbackMarker.addTo(window.map);
-    return fallbackMarker;
+    // ניסיון אחרון - יצירת סמן בסיסי
+    try {
+      return window.mapServices.createMarker(window.map, location.coordinates);
+    } catch (e) {
+      console.error("Critical error creating marker:", e);
+      return null;
+    }
   }
 }
 
 // ניקוי סמנים
 function clearMarkers() {
   try {
-    if (!window.map) return;
+    if (!window.map || !window.mapServices) return;
     
     markers.forEach(marker => {
       if (marker) {
-        marker.remove(); // השתמש ב-remove() במקום window.map.removeLayer
+        window.mapServices.removeLayer(window.map, marker);
       }
     });
     markers = [];
     
     // הסרת קו המסלול אם קיים
     if (window.routeLine) {
-      window.routeLine.remove(); // השתמש ב-remove() במקום window.map.removeLayer
+      window.mapServices.removeLayer(window.map, window.routeLine);
       window.routeLine = null;
     }
   } catch (error) {
@@ -181,7 +194,7 @@ function clearMarkers() {
 // יצירת קו המחבר את נקודות המסלול
 function createRouteLine(locations) {
   try {
-    if (!window.map) return;
+    if (!window.map || !window.mapServices) return;
     
     const points = locations.map(loc => loc.coordinates);
     
@@ -193,8 +206,7 @@ function createRouteLine(locations) {
         dashArray: '5, 10'
       };
       
-      window.routeLine = L.polyline(points, polylineOptions);
-      window.routeLine.addTo(window.map); // השתמש ב-addTo במקום addLayer
+      window.routeLine = window.mapServices.createPolyline(window.map, points, polylineOptions);
     }
   } catch (error) {
     console.error('שגיאה ביצירת קו מסלול:', error);
