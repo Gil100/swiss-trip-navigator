@@ -8,6 +8,7 @@ const ASSETS_TO_CACHE = [
   './js/map.js',
   './js/itinerary.js',
   './js/utils.js',
+  './js/Layer.js', // הוספת הקובץ החדש למטמון
   './data/itinerary.json',
   './icons/mainview.png',
   'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css',
