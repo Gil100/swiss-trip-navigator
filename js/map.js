@@ -4,7 +4,7 @@ let markers = [];
 function addBackgroundImage() {
   const mapElement = document.getElementById('map');
   if (mapElement) {
-    mapElement.style.backgroundImage = "url('icons/mainview.png')";
+    mapElement.style.backgroundImage = "url('mainview.webp')";
     mapElement.style.backgroundSize = "cover";
     mapElement.style.backgroundPosition = "center";
   }
@@ -90,8 +90,10 @@ function createMarker(location, day) {
     html: `<div class="icon-inner"></div>`
   });
   
-  // יצירת סמן עם אייקון מותאם
-  const marker = L.marker(location.coordinates, { icon }).addTo(window.map);
+  // יצירת סמן עם אייקון מותאם ללא addTo ישירות
+  const marker = L.marker(location.coordinates, { icon });
+  // הוספת הסמן למפה בנפרד
+  marker.addTo(window.map);
   
   // מידע מורחב בחלון המידע
   let nextLocationInfo = '';
@@ -164,7 +166,9 @@ function createRouteLine(locations) {
         weight: 3,
         opacity: 0.7,
         dashArray: '5, 10'
-      }).addTo(window.map);
+      });
+      // הוספת הקו למפה בנפרד
+      window.routeLine.addTo(window.map);
     }
   } catch (error) {
     console.error('שגיאה ביצירת קו מסלול:', error);

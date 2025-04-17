@@ -1,5 +1,5 @@
 // הוספה לרשימת הקבצים לשמירה במטמון
-const CACHE_NAME = 'swiss-trip-navigator-v1';
+const CACHE_NAME = 'swiss-trip-navigator-v2'; // שינוי מספר גרסה
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -8,11 +8,11 @@ const ASSETS_TO_CACHE = [
   './js/map.js',
   './js/itinerary.js',
   './js/utils.js',
-  './js/Layer.js', // הוספת הקובץ החדש למטמון
+  './js/Layer.js',
   './data/itinerary.json',
-  './icons/mainview.png',
-  'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css',
-  'https://unpkg.com/leaflet@1.7.1/dist/leaflet.js',
+  './mainview.webp', // במקום icons/mainview.png
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css', // שדרוג גרסת Leaflet
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',  // שדרוג גרסת Leaflet
   // אייקונים
   './icons/waterfall.svg',
   './icons/viewpoint.svg',
