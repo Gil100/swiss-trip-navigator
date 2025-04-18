@@ -10,14 +10,14 @@ let routeLine = null;
 let mapInitialized = false; // Flag to track map initialization
 
 // יצירת סמן טקסט פשוט להצגה במפה
-function createSimpleMarker(lat, lng, text, color, size = 30) {
+function createSimpleMarker(lat, lng, text, color) {
   // 1. יצירת אלמנט HTML
   const markerElement = document.createElement('div');
   markerElement.className = 'simple-marker';
   markerElement.style.backgroundColor = color || '#e53935';
   markerElement.style.color = 'white';
-  markerElement.style.width = `${size}px`;
-  markerElement.style.height = `${size}px`;
+  markerElement.style.width = '30px';
+  markerElement.style.height = '30px';
   markerElement.style.borderRadius = '50%';
   markerElement.style.display = 'flex';
   markerElement.style.alignItems = 'center';
@@ -28,7 +28,7 @@ function createSimpleMarker(lat, lng, text, color, size = 30) {
   markerElement.style.boxShadow = '0 0 5px rgba(0,0,0,0.4)';
   markerElement.style.zIndex = '1000';
   markerElement.style.cursor = 'pointer';
-  markerElement.style.fontSize = `${size/2}px`;
+  markerElement.style.fontSize = '16px';
   markerElement.innerHTML = text || '●';
   
   // 2. הוספה למפה
@@ -96,33 +96,28 @@ function showPopup(lat, lng, content) {
     existingPopup.parentNode.removeChild(existingPopup);
   }
   
-  // יצירת חלון מידע חדש עם סגנון משופר
+  // יצירת חלון מידע חדש
   const popup = document.createElement('div');
   popup.id = 'simple-popup';
   popup.className = 'simple-popup';
   popup.innerHTML = content;
   popup.style.position = 'absolute';
   popup.style.backgroundColor = 'white';
-  popup.style.padding = '15px';
-  popup.style.borderRadius = '8px';
-  popup.style.boxShadow = '0 0 15px rgba(0,0,0,0.4)';
+  popup.style.padding = '10px';
+  popup.style.borderRadius = '5px';
+  popup.style.boxShadow = '0 0 10px rgba(0,0,0,0.4)';
   popup.style.maxWidth = '300px';
-  popup.style.width = '280px';
   popup.style.zIndex = '2000';
   
   // הוספת כפתור סגירה
   const closeButton = document.createElement('div');
   closeButton.innerHTML = '&times;';
   closeButton.style.position = 'absolute';
-  closeButton.style.top = '8px';
-  closeButton.style.right = '8px';
+  closeButton.style.top = '5px';
+  closeButton.style.right = '5px';
   closeButton.style.cursor = 'pointer';
   closeButton.style.fontWeight = 'bold';
-  closeButton.style.fontSize = '22px';
-  closeButton.style.width = '30px';
-  closeButton.style.height = '30px';
-  closeButton.style.textAlign = 'center';
-  closeButton.style.lineHeight = '30px';
+  closeButton.style.fontSize = '16px';
   closeButton.onclick = () => {
     popup.parentNode.removeChild(popup);
   };
@@ -133,7 +128,7 @@ function showPopup(lat, lng, content) {
   if (mapContainer) {
     mapContainer.appendChild(popup);
     
-    // מיקום ליד הסמן
+    // מיקום החלון ליד הסמן
     const mapWidth = mapContainer.offsetWidth;
     const mapHeight = mapContainer.offsetHeight;
     
@@ -149,64 +144,18 @@ function showPopup(lat, lng, content) {
     popup.style.left = `${x + 20}px`; // קצת ימינה מהסמן
     popup.style.top = `${y - 10}px`;  // קצת למעלה מהסמן
     
-    // ודא שהחלון נשאר בתוך גבולות המפה
-    setTimeout(() => {
-      const popupRect = popup.getBoundingClientRect();
-      const mapRect = mapContainer.getBoundingClientRect();
-      
-      if (popupRect.right > mapRect.right) {
-        popup.style.left = `${x - popupRect.width - 20}px`;
-      }
-      
-      if (popupRect.bottom > mapRect.bottom) {
-        popup.style.top = `${y - popupRect.height - 20}px`;
-      }
-      
-      if (popupRect.left < mapRect.left) {
-        popup.style.left = `${mapRect.left + 10}px`;
-      }
-      
-      if (popupRect.top < mapRect.top) {
-        popup.style.top = `${mapRect.top + 10}px`;
-      }
-      
-      // הוספת מאזיני אירועים לכפתורי ניווט
-      setupPopupNavigationButtons();
-    }, 0);
-  }
-}
-
-// פונקציה להוספת מאזיני אירועים לכפתורי ניווט בחלון המידע
-function setupPopupNavigationButtons() {
-  // מצא את כל כפתורי הניווט בחלון המידע
-  const navButtons = document.querySelectorAll('.popup-nav-link');
-  
-  navButtons.forEach(button => {
-    // בדיקה אם יש לכפתור inline onclick
-    const originalOnClick = button.getAttribute('onclick');
-    if (originalOnClick && originalOnClick.includes('openNavigation')) {
-      // ביטול אירוע מקורי
-      button.removeAttribute('onclick');
-      
-      // חילוץ נתוני המיקום מהקריאה המקורית
-      const match = originalOnClick.match(/openNavigation\(\{coordinates:\s*\[([\d\.-]+),\s*([\d\.-]+)\],\s*title:\s*['"]([^'"]+)['"]/);
-      
-      if (match) {
-        const lat = parseFloat(match[1]);
-        const lng = parseFloat(match[2]);
-        const title = match[3];
-        
-        // הוספת אירוע לחיצה חדש
-        button.addEventListener('click', function(e) {
-          e.preventDefault();
-          window.openNavigation({
-            coordinates: [lat, lng],
-            title: title
-          });
-        });
-      }
+    // וידוא שהחלון נשאר בתוך גבולות המפה
+    const popupRect = popup.getBoundingClientRect();
+    const mapRect = mapContainer.getBoundingClientRect();
+    
+    if (popupRect.right > mapRect.right) {
+      popup.style.left = `${x - popupRect.width - 20}px`;
     }
-  });
+    
+    if (popupRect.bottom > mapRect.bottom) {
+      popup.style.top = `${y - popupRect.height - 20}px`;
+    }
+  }
 }
 
 // אתחול המפה
@@ -545,7 +494,7 @@ function updateMapForDay(day) {
   }
 }
 
-// יצירת סמן למלון - קטע מתוקן
+// יצירת סמן למלון
 function createHotelMarker(coordinates, title, day) {
   try {
     if (!coordinates || coordinates.length !== 2) {
@@ -555,12 +504,15 @@ function createHotelMarker(coordinates, title, day) {
     
     const [lat, lng] = coordinates;
     
-    // תוכן לחלון המידע - עדכון לשימוש בפונקציית JS במקום inline onclick
+    // תוכן לחלון המידע
     const popupContent = `
       <div class="marker-popup">
         <h3>${title}</h3>
         <p>נקודת מוצא ליום ${day.dayNumber}: ${day.title}</p>
-        <button class="popup-nav-link" id="hotel-nav-button">פתח בניווט</button>
+        <button class="popup-nav-link" onclick="openNavigation({
+          coordinates: [${lat}, ${lng}],
+          title: '${title.replace(/'/g, "\\'")}'
+        })">פתח בניווט</button>
       </div>
     `;
     
@@ -579,29 +531,7 @@ function createHotelMarker(coordinates, title, day) {
         
         if (window.map.addLayer) {
           marker.addTo(window.map);
-          
-          // יצירת פופאפ והוספת אירוע לחיצה לאחר פתיחה
-          const popup = L.popup({
-            maxWidth: 300,
-            minWidth: 280,
-            className: 'custom-popup'
-          }).setContent(popupContent);
-          
-          marker.bindPopup(popup);
-          
-          // הוספת מאזין אירוע לאחר פתיחת הפופאפ
-          marker.on('popupopen', function() {
-            const navButton = document.getElementById('hotel-nav-button');
-            if (navButton) {
-              navButton.addEventListener('click', function() {
-                window.openNavigation({
-                  coordinates: [lat, lng],
-                  title: title
-                });
-              });
-            }
-          });
-          
+          marker.bindPopup(popupContent);
           return marker;
         }
       } catch (e) {
@@ -611,29 +541,7 @@ function createHotelMarker(coordinates, title, day) {
     
     // גישה חלופית - יצירת סמן פשוט
     const simpleMarker = createSimpleMarker(lat, lng, '🏨', '#4CAF50');
-    
-    // עדכון הפונקציה כך שתשתמש באירוע לחיצה במקום inline onclick
     simpleMarker.setPopupContent(popupContent);
-    
-    // הוספת אירוע לאחר הצגת הפופאפ
-    const originalSetPopupContent = simpleMarker.setPopupContent;
-    simpleMarker.setPopupContent = function(content) {
-      originalSetPopupContent.call(this, content);
-      
-      // הוספת מאזין אירוע לכפתור הניווט אחרי הצגת הפופאפ
-      setTimeout(() => {
-        const navButton = document.getElementById('hotel-nav-button');
-        if (navButton) {
-          navButton.addEventListener('click', function() {
-            window.openNavigation({
-              coordinates: [lat, lng],
-              title: title
-            });
-          });
-        }
-      }, 100);
-    };
-    
     return simpleMarker;
     
   } catch (error) {
@@ -642,7 +550,7 @@ function createHotelMarker(coordinates, title, day) {
   }
 }
 
-// יצירת סמן - קטע מתוקן
+// יצירת סמן
 function createMarker(location, day) {
   try {
     console.log(`Creating marker for ${location.title}`);
@@ -654,7 +562,7 @@ function createMarker(location, day) {
     
     const [lat, lng] = location.coordinates;
     
-    // הכנת מידע לחלון המידע עם סגנון משופר
+    // הכנת מידע לחלון המידע
     let nextLocationInfo = '';
     
     const locationIndex = day.locations.findIndex(loc => loc.id === location.id);
@@ -672,21 +580,21 @@ function createMarker(location, day) {
       `;
     }
     
-    // עדכון חלון המידע - שימוש ב-ID ייחודי במקום inline onclick
-    const popupId = `popup-nav-${location.id}`;
-    
-    // תוכן לחלון המידע עם פורמט משופר וגודל גופן טוב יותר
+    // תוכן לחלון המידע
     const popupContent = `
       <div class="marker-popup">
         <h3>${location.title}</h3>
-        <p><strong>שעה:</strong> ${location.time}</p>
         <p>${location.description}</p>
+        <p><strong>שעה:</strong> ${location.time}</p>
         ${nextLocationInfo}
-        <button class="popup-nav-link" id="${popupId}">פתח בניווט</button>
+        <button class="popup-nav-link" onclick="openNavigation({
+          coordinates: [${location.coordinates[0]}, ${location.coordinates[1]}],
+          title: '${location.title.replace(/'/g, "\\'")}'
+        })">פתח בניווט</button>
       </div>
     `;
     
-    // פונקציית לחיצה להדגשת פריט ברשימת המסלול
+    // פונקציית לחיצה
     const clickHandler = function() {
       highlightItineraryItem(location.id);
     };
@@ -694,45 +602,19 @@ function createMarker(location, day) {
     // יצירת סמן באמצעות Leaflet אם זמין
     if (window.L && typeof L.marker === 'function') {
       try {
-        // סמנים גדולים יותר לנגיעה טובה יותר במובייל
-        const iconSize = isMobileDevice() ? 44 : 40;
-        
         const marker = L.marker([lat, lng], {
           icon: L.divIcon({
             className: `map-icon ${location.type || 'default'}`,
-            iconSize: [iconSize, iconSize],
-            iconAnchor: [iconSize/2, iconSize/2],
-            popupAnchor: [0, -iconSize/2],
+            iconSize: [40, 40],
+            iconAnchor: [20, 20],
+            popupAnchor: [0, -20],
             html: `<div class="icon-inner">${getTypeEmoji(location.type)}</div>`
-          }),
-          riseOnHover: true // הבא סמן לחזית בעת מעבר עכבר
+          })
         });
         
         if (window.map.addLayer) {
           marker.addTo(window.map);
-          
-          // יצירת חלון מידע עם רוחב מוגדר
-          const popup = L.popup({ 
-            maxWidth: 300,
-            minWidth: 280,
-            className: 'custom-popup' // הוספת מחלקה מותאמת לסגנון קל יותר
-          }).setContent(popupContent);
-          
-          marker.bindPopup(popup);
-          
-          // הוספת אירוע שיופעל כאשר הפופאפ נפתח
-          marker.on('popupopen', function() {
-            const navButton = document.getElementById(popupId);
-            if (navButton) {
-              navButton.addEventListener('click', function() {
-                window.openNavigation({
-                  coordinates: [lat, lng],
-                  title: location.title
-                });
-              });
-            }
-          });
-          
+          marker.bindPopup(popupContent);
           marker.on('click', clickHandler);
           return marker;
         }
@@ -742,29 +624,8 @@ function createMarker(location, day) {
     }
     
     // גישה חלופית - יצירת סמן פשוט
-    const iconSize = isMobileDevice() ? 44 : 30;
-    const simpleMarker = createSimpleMarker(lat, lng, getTypeEmoji(location.type), getTypeColor(location.type), iconSize);
+    const simpleMarker = createSimpleMarker(lat, lng, getTypeEmoji(location.type), getTypeColor(location.type));
     simpleMarker.setPopupContent(popupContent);
-    
-    // עדכון אירועי לחיצה
-    const originalSetPopupContent = simpleMarker.setPopupContent;
-    simpleMarker.setPopupContent = function(content) {
-      originalSetPopupContent.call(this, content);
-      
-      // הוספת מאזין אירוע לכפתור הניווט אחרי הצגת הפופאפ
-      setTimeout(() => {
-        const navButton = document.getElementById(popupId);
-        if (navButton) {
-          navButton.addEventListener('click', function() {
-            window.openNavigation({
-              coordinates: [lat, lng],
-              title: location.title
-            });
-          });
-        }
-      }, 100);
-    };
-    
     // הוספת אירוע לחיצה
     simpleMarker.element.addEventListener('click', clickHandler);
     return simpleMarker;
@@ -779,638 +640,383 @@ function createMarker(location, day) {
 function fitMapToMarkers() {
   try {
     if (!window.map) return;
-// בדיקה אם יש לנו Leaflet
-if (window.L && window.map.fitBounds && markers.length > 0) {
-  try {
-    // יצירת גבולות שכוללים את כל הסמנים
-    const bounds = L.latLngBounds();
     
-    markers.forEach(marker => {
+    // בדיקה אם יש לנו Leaflet
+    if (window.L && window.map.fitBounds && markers.length > 0) {
       try {
-        if (marker.getLatLng) {
-          bounds.extend(marker.getLatLng());
-        } else if (marker.lat && marker.lng) {
-          bounds.extend([marker.lat, marker.lng]);
+        // יצירת גבולות שכוללים את כל הסמנים
+        const bounds = L.latLngBounds();
+        
+        markers.forEach(marker => {
+          try {
+            if (marker.getLatLng) {
+              bounds.extend(marker.getLatLng());
+            } else if (marker.lat && marker.lng) {
+              bounds.extend([marker.lat, marker.lng]);
+            }
+          } catch (e) {
+            console.warn("שגיאה בהוספת סמן לגבולות:", e);
+          }
+        });
+        
+        if (!bounds.isValid()) {
+          console.warn("גבולות לא תקפים, מדלג על התאמת גודל");
+          return;
         }
+        
+        // הוספת שוליים לגבולות
+        const paddedBounds = bounds.pad(0.2); // 20% padding
+        window.map.fitBounds(paddedBounds);
+        
       } catch (e) {
-        console.warn("שגיאה בהוספת סמן לגבולות:", e);
+        console.warn("שגיאה בהתאמת גודל מפת Leaflet:", e);
+        
+        // אם Leaflet נכשל, ננסה להתמקד על הסמן הראשון
+        if (markers.length > 0) {
+          const firstMarker = markers[0];
+          if (firstMarker.getLatLng) {
+            window.map.setView(firstMarker.getLatLng(), 10);
+          } else if (firstMarker.lat && firstMarker.lng) {
+            window.map.setView([firstMarker.lat, firstMarker.lng], 10);
+          }
+        }
       }
-    });
-    
-    if (!bounds.isValid()) {
-      console.warn("גבולות לא תקפים, מדלג על התאמת גודל");
-      return;
-    }
-    
-    // הוספת שוליים לגבולות
-    const paddedBounds = bounds.pad(0.2); // 20% padding
-    window.map.fitBounds(paddedBounds);
-    
-  } catch (e) {
-    console.warn("שגיאה בהתאמת גודל מפת Leaflet:", e);
-    
-    // אם Leaflet נכשל, ננסה להתמקד על הסמן הראשון
-    if (markers.length > 0) {
+    } 
+    // גישה חלופית למפה הפשוטה
+    else if (markers.length > 0) {
       const firstMarker = markers[0];
-      if (firstMarker.getLatLng) {
-        window.map.setView(firstMarker.getLatLng(), 10);
-      } else if (firstMarker.lat && firstMarker.lng) {
-        window.map.setView([firstMarker.lat, firstMarker.lng], 10);
+      if (firstMarker.lat && firstMarker.lng) {
+        if (window.map.setView) {
+          window.map.setView([firstMarker.lat, firstMarker.lng]);
+        }
       }
     }
+  } catch (error) {
+    console.error("שגיאה בהתאמת גודל המפה:", error);
   }
-} 
-// גישה חלופית למפה הפשוטה
-else if (markers.length > 0) {
-  const firstMarker = markers[0];
-  if (firstMarker.lat && firstMarker.lng) {
-    if (window.map.setView) {
-      window.map.setView([firstMarker.lat, firstMarker.lng]);
-    }
-  }
-}
-} catch (error) {
-console.error("שגיאה בהתאמת גודל המפה:", error);
-}
 }
 
 // יצירת קו מסלול
 function createDayRouteLine(day, hotelCoordinates) {
-// מחיקת קו קיים אם יש
-if (routeLine) {
-try {
-  if (routeLine.remove) {
-    routeLine.remove();
-  } else if (window.map.removeLayer) {
-    window.map.removeLayer(routeLine);
-  }
-} catch (e) {
-  console.warn("שגיאה במחיקת קו מסלול קיים:", e);
-}
-routeLine = null;
-}
-
-// בדיקה אם יש Leaflet ויש נקודות מסלול
-if (window.L && window.map.addLayer && day.locations.length > 0) {
-try {
-  // יצירת מערך נקודות למסלול
-  const routePoints = [];
-  
-  // הוספת המלון כנקודת התחלה
-  routePoints.push(hotelCoordinates);
-  
-  // הוספת כל נקודות המסלול
-  day.locations.forEach(location => {
-    routePoints.push(location.coordinates);
-  });
-  
-  // הוספת המלון כנקודת סיום (אם יש יותר מנקודה אחת במסלול)
-  if (day.locations.length > 0) {
-    routePoints.push(hotelCoordinates);
+  // מחיקת קו קיים אם יש
+  if (routeLine) {
+    try {
+      if (routeLine.remove) {
+        routeLine.remove();
+      } else if (window.map.removeLayer) {
+        window.map.removeLayer(routeLine);
+      }
+    } catch (e) {
+      console.warn("שגיאה במחיקת קו מסלול קיים:", e);
+    }
+    routeLine = null;
   }
   
-  // יצירת קו עם סגנון מותאם
-  routeLine = L.polyline(routePoints, {
-    color: '#e53935',
-    weight: 3,
-    opacity: 0.7,
-    dashArray: '5, 10', // קו מקווקו
-    lineJoin: 'round'
-  });
+  // בדיקה אם יש Leaflet ויש נקודות מסלול
+  if (window.L && window.map.addLayer && day.locations.length > 0) {
+    try {
+      // יצירת מערך נקודות למסלול
+      const routePoints = [];
+      
+      // הוספת המלון כנקודת התחלה
+      routePoints.push(hotelCoordinates);
+      
+      // הוספת כל נקודות המסלול
+      day.locations.forEach(location => {
+        routePoints.push(location.coordinates);
+      });
+      
+      // הוספת המלון כנקודת סיום (אם יש יותר מנקודה אחת במסלול)
+      if (day.locations.length > 0) {
+        routePoints.push(hotelCoordinates);
+      }
+      
+      // יצירת קו עם סגנון מותאם
+      routeLine = L.polyline(routePoints, {
+        color: '#e53935',
+        weight: 3,
+        opacity: 0.7,
+        dashArray: '5, 10', // קו מקווקו
+        lineJoin: 'round'
+      });
+      
+      // הוספת הקו למפה
+      routeLine.addTo(window.map);
+      
+      return routeLine;
+    } catch (e) {
+      console.warn("שגיאה ביצירת קו מסלול:", e);
+    }
+  }
   
-  // הוספת הקו למפה
-  routeLine.addTo(window.map);
-  
-  return routeLine;
-} catch (e) {
-  console.warn("שגיאה ביצירת קו מסלול:", e);
-}
-}
-
-return null;
+  return null;
 }
 
 // ניקוי כל הסמנים
 function clearMarkers() {
-try {
-console.log("Clearing markers...");
-
-if (!window.map) {
-  console.warn('המפה לא אותחלה עדיין, אין צורך לנקות סמנים');
-  markers = []; // איפוס המערך למקרה שיש בו ערכים
-  return;
-}
-
-// הסרת כל הסמנים
-markers.forEach(marker => {
-  if (marker) {
-    try {
-      // בדיקה אם לסמן יש פונקציית הסרה ישירה
-      if (typeof marker.remove === 'function') {
-        marker.remove();
-      } 
-      // אם לא, ננסה להשתמש בפונקציית הסרה של המפה
-      else if (window.map && typeof window.map.removeLayer === 'function') {
-        window.map.removeLayer(marker);
-      }
-      else if (window.map && typeof window.map.customRemoveMarker === 'function') {
-        window.map.customRemoveMarker(marker);
-      }
-    } catch (e) {
-      console.warn("Error removing marker:", e);
-    }
-  }
-});
-
-markers = [];
-
-// ניקוי קו המסלול אם קיים
-if (routeLine) {
   try {
-    if (typeof routeLine.remove === 'function') {
-      routeLine.remove();
-    } else if (window.map && typeof window.map.removeLayer === 'function') {
-      window.map.removeLayer(routeLine);
-    } else if (window.map && typeof window.map.customRemoveMarker === 'function') {
-      window.map.customRemoveMarker(routeLine);
+    console.log("Clearing markers...");
+    
+    if (!window.map) {
+      console.warn('המפה לא אותחלה עדיין, אין צורך לנקות סמנים');
+      markers = []; // איפוס המערך למקרה שיש בו ערכים
+      return;
     }
-  } catch (e) {
-    console.warn("Error removing route line:", e);
+    
+    // הסרת כל הסמנים
+    markers.forEach(marker => {
+      if (marker) {
+        try {
+          // בדיקה אם לסמן יש פונקציית הסרה ישירה
+          if (typeof marker.remove === 'function') {
+            marker.remove();
+          } 
+          // אם לא, ננסה להשתמש בפונקציית הסרה של המפה
+          else if (window.map && typeof window.map.removeLayer === 'function') {
+            window.map.removeLayer(marker);
+          }
+          else if (window.map && typeof window.map.customRemoveMarker === 'function') {
+            window.map.customRemoveMarker(marker);
+          }
+        } catch (e) {
+          console.warn("Error removing marker:", e);
+        }
+      }
+    });
+    
+    markers = [];
+    
+    // ניקוי קו המסלול אם קיים
+    if (routeLine) {
+      try {
+        if (typeof routeLine.remove === 'function') {
+          routeLine.remove();
+        } else if (window.map && typeof window.map.removeLayer === 'function') {
+          window.map.removeLayer(routeLine);
+        } else if (window.map && typeof window.map.customRemoveMarker === 'function') {
+          window.map.customRemoveMarker(routeLine);
+        }
+      } catch (e) {
+        console.warn("Error removing route line:", e);
+      }
+      
+      routeLine = null;
+    }
+    
+    console.log("All markers cleared");
+  } catch (error) {
+    console.error('שגיאה בניקוי סמנים:', error);
   }
-  
-  routeLine = null;
-}
-
-console.log("All markers cleared");
-} catch (error) {
-console.error('שגיאה בניקוי סמנים:', error);
-}
 }
 
 // התמקדות על מיקום
 function focusLocationOnMap(location) {
-try {
-console.log(`Focusing on location: ${location.title}`);
-
-if (!window.map) return;
-
-// התמקדות על המיקום
-try {
-  if (window.map.setView) {
-    window.map.setView(location.coordinates);
-  }
-} catch (e) {
-  console.warn('שגיאה בהתמקדות על המיקום:', e);
-}
-
-// חיפוש וסימון הסמן המתאים
-const marker = markers.find(m => {
-  if (!m) return false;
-  
   try {
-    if (m.getLatLng) {
-      const pos = m.getLatLng();
-      return pos.lat === location.coordinates[0] && pos.lng === location.coordinates[1];
-    } else if (m.lat && m.lng) {
-      return m.lat === location.coordinates[0] && m.lng === location.coordinates[1];
+    console.log(`Focusing on location: ${location.title}`);
+    
+    if (!window.map) return;
+    
+    // התמקדות על המיקום
+    try {
+      if (window.map.setView) {
+        window.map.setView(location.coordinates);
+      }
+    } catch (e) {
+      console.warn('שגיאה בהתמקדות על המיקום:', e);
     }
-  } catch (e) {
-    return false;
+    
+    // חיפוש וסימון הסמן המתאים
+    const marker = markers.find(m => {
+      if (!m) return false;
+      
+      try {
+        if (m.getLatLng) {
+          const pos = m.getLatLng();
+          return pos.lat === location.coordinates[0] && pos.lng === location.coordinates[1];
+        } else if (m.lat && m.lng) {
+          return m.lat === location.coordinates[0] && m.lng === location.coordinates[1];
+        }
+      } catch (e) {
+        return false;
+      }
+      
+      return false;
+    });
+    
+    // פתיחת חלון מידע אם נמצא סמן מתאים
+    if (marker) {
+      if (typeof marker.openPopup === 'function') {
+        marker.openPopup();
+      } else if (marker.popupContent) {
+        showPopup(marker.lat, marker.lng, marker.popupContent);
+      }
+    }
+    
+  } catch (error) {
+    console.error('שגיאה בהתמקדות על מיקום:', error);
   }
-  
-  return false;
-});
-
-// פתיחת חלון מידע אם נמצא סמן מתאים
-if (marker) {
-  if (typeof marker.openPopup === 'function') {
-    marker.openPopup();
-  } else if (marker.popupContent) {
-    showPopup(marker.lat, marker.lng, marker.popupContent);
-  }
-}
-
-} catch (error) {
-console.error('שגיאה בהתמקדות על מיקום:', error);
-}
 }
 
 // פונקציה לחישוב מרחק בין שתי נקודות 
 function calculateDistance(coord1, coord2) {
-// נוסחת Haversine לחישוב מרחק בין שתי נקודות על פני כדור הארץ
-const R = 6371; // רדיוס כדור הארץ בקילומטרים
-const dLat = (coord2[0] - coord1[0]) * Math.PI / 180;
-const dLon = (coord2[1] - coord1[1]) * Math.PI / 180;
-const a = 
-Math.sin(dLat/2) * Math.sin(dLat/2) +
-Math.cos(coord1[0] * Math.PI / 180) * Math.cos(coord2[0] * Math.PI / 180) * 
-Math.sin(dLon/2) * Math.sin(dLon/2); 
-const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-const distance = R * c; // מרחק בקילומטרים
-return distance;
+  // נוסחת Haversine לחישוב מרחק בין שתי נקודות על פני כדור הארץ
+  const R = 6371; // רדיוס כדור הארץ בקילומטרים
+  const dLat = (coord2[0] - coord1[0]) * Math.PI / 180;
+  const dLon = (coord2[1] - coord1[1]) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(coord1[0] * Math.PI / 180) * Math.cos(coord2[0] * Math.PI / 180) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2); 
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  const distance = R * c; // מרחק בקילומטרים
+  return distance;
 }
 
 // פונקציה להערכת זמן נסיעה לפי מרחק
 function estimateTravelTime(distance) {
-// הנחה של מהירות ממוצעת של 60 קמ"ש בדרכים אלפיניות
-const avgSpeed = 60; // קמ"ש
-const timeHours = distance / avgSpeed;
-const timeMinutes = Math.round(timeHours * 60);
-return timeMinutes;
+  // הנחה של מהירות ממוצעת של 60 קמ"ש בדרכים אלפיניות
+  const avgSpeed = 60; // קמ"ש
+  const timeHours = distance / avgSpeed;
+  const timeMinutes = Math.round(timeHours * 60);
+  return timeMinutes;
 }
 
 // פונקציה לקבלת אימוג'י לפי סוג המיקום
 function getTypeEmoji(type) {
-switch (type) {
-case 'waterfall': return '💦';
-case 'viewpoint': return '👁️';
-case 'lake': return '🏞️';
-case 'mountain': return '🏔️';
-case 'castle': return '🏰';
-case 'cablecar': return '🚡';
-case 'gorge': return '🏞️';
-case 'landmark': return '🏛️';
-case 'monument': return '🗿';
-case 'parking': return '🅿️';
-case 'city': return '🏙️';
-default: return '📍';
-}
+  switch (type) {
+    case 'waterfall': return '💦';
+    case 'viewpoint': return '👁️';
+    case 'lake': return '🏞️';
+    case 'mountain': return '🏔️';
+    case 'castle': return '🏰';
+    case 'cablecar': return '🚡';
+    case 'gorge': return '🏞️';
+    case 'landmark': return '🏛️';
+    case 'monument': return '🗿';
+    case 'parking': return '🅿️';
+    case 'city': return '🏙️';
+    default: return '📍';
+  }
 }
 
 // פונקציה לקבלת צבע לפי סוג המיקום
 function getTypeColor(type) {
-switch (type) {
-case 'waterfall': return '#00BCD4';
-case 'viewpoint': return '#FFC107';
-case 'lake': return '#2196F3';
-case 'mountain': return '#795548';
-case 'castle': return '#673AB7';
-case 'cablecar': return '#F44336';
-case 'gorge': return '#607D8B';
-case 'landmark': return '#9C27B0';
-case 'monument': return '#E91E63';
-case 'parking': return '#3F51B5';
-case 'city': return '#FF9800';
-default: return '#e53935';
-}
+  switch (type) {
+    case 'waterfall': return '#00BCD4';
+    case 'viewpoint': return '#FFC107';
+    case 'lake': return '#2196F3';
+    case 'mountain': return '#795548';
+    case 'castle': return '#673AB7';
+    case 'cablecar': return '#F44336';
+    case 'gorge': return '#607D8B';
+    case 'landmark': return '#9C27B0';
+    case 'monument': return '#E91E63';
+    case 'parking': return '#3F51B5';
+    case 'city': return '#FF9800';
+    default: return '#e53935';
+  }
 }
 
 // הוספת סגנון CSS למפה
 function addMapStyles() {
-  // הסרת סגנונות קיימים כדי למנוע כפילות
-  const existingStyle = document.getElementById('map-custom-styles');
-  if (existingStyle) {
-    existingStyle.remove();
-  }
-
-  const style = document.createElement('style');
-  style.id = 'map-custom-styles';
-  style.textContent = `
-  .map-icon.hotel .icon-inner:after {
-    content: '🏨';
-  }
-
-  /* סגנון לקווי המסלול */
-  .leaflet-overlay-pane path {
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-
-  /* שיפור מראה האייקונים */
-  .map-icon {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border-radius: 50% !important;
-    border: 2px solid white !important;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3) !important;
-    background-color: var(--marker-color, #e53935) !important;
-    color: white !important;
-    font-size: 18px !important;
-    width: 36px !important;
-    height: 36px !important;
-  }
-
-  /* סגנון לחלון מידע */
-  .leaflet-popup-content {
-    direction: rtl;
-    text-align: right;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    min-width: 200px;
-    max-width: 300px;
-  }
-
-  .leaflet-popup-content h3 {
-    margin: 0 0 8px 0;
-    color: #e53935;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 5px;
-  }
-
-  .leaflet-popup-content p {
-    margin: 5px 0;
-  }
-
-  .popup-nav-link {
-    display: block;
-    background-color: #e53935;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 4px;
-    text-align: center;
-    margin-top: 10px;
-    text-decoration: none;
-    cursor: pointer;
-    border: none;
-    width: 100%;
-  }
-
-  /* נקודת התחלה וסיום */
-  .start-end-point {
-    border: 3px solid white !important;
-    z-index: 1000 !important;
-  }
-
-  /* אנימציה לנקודות על המפה */
-  @keyframes markerPulse {
-    0% {
-      transform: scale(1);
-      opacity: 1;
-    }
-    50% {
-      transform: scale(1.1);
-      opacity: 0.9;
-    }
-    100% {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-
-  .map-icon:hover {
-    animation: markerPulse 1s infinite;
-    z-index: 1000 !important;
-  }
-  `;
-  document.head.appendChild(style);
-}
-// הוסף את הקוד הבא בסוף קובץ map.js הקיים
-// תוספות אלו משפרות את חוויית המשתמש במובייל
-
-// בדיקה האם המכשיר הוא מובייל
-function isMobileDevice() {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
-}
-
-// שיפורים לתצוגת המפה במובייל
-function enhanceMobileMapExperience() {
-  if (!isMobileDevice()) return;
-  
-  console.log("Enhancing map for mobile experience");
-  
-  // שיפור סמני המפה
-  enhanceMapMarkers();
-  
-  // שיפור חלונות המידע (פופאפים)
-  enhanceInfoPopups();
-  
-  // שיפור כפתורי זום
-  enhanceZoomControls();
-}
-
-// שיפור סמני המפה - גודל גדול יותר לנגיעה קלה יותר
-function enhanceMapMarkers() {
   const style = document.createElement('style');
   style.textContent = `
-    .map-icon, .simple-marker {
-      width: 44px !important;
-      height: 44px !important;
-      font-size: 22px !important;
+    .map-icon.hotel .icon-inner:after {
+      content: '🏨';
+    }
+    
+    /* סגנון לקווי המסלול */
+    .leaflet-overlay-pane path {
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    
+    /* שיפור מראה האייקונים */
+    .map-icon {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border-radius: 50% !important;
       border: 2px solid white !important;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4) !important;
-    }
-    
-    .map-icon .icon-inner {
-      font-size: 22px !important;
-    }
-    
-    /* הגדלת אזור הנגיעה */
-    .leaflet-marker-icon {
-      padding: 5px;
-      margin-top: -5px;
-      margin-left: -5px;
-    }
-  `;
-  document.head.appendChild(style);
-  
-  // עדכון סמנים קיימים
-  if (window.markers && window.markers.length) {
-    window.markers.forEach(marker => {
-      if (marker.getElement) {
-        const el = marker.getElement();
-        if (el) {
-          el.style.width = '44px';
-          el.style.height = '44px';
-          el.style.fontSize = '22px';
-        }
-      }
-    });
-  }
-}
-
-// שיפור חלונות המידע
-function enhanceInfoPopups() {
-  const style = document.createElement('style');
-  style.textContent = `
-    .leaflet-popup-content-wrapper,
-    .simple-popup {
-      width: 280px !important;
-      max-width: 90vw !important;
-      padding: 15px !important;
-      border-radius: 15px !important;
-    }
-    
-    .leaflet-popup-content,
-    .simple-popup {
-      margin: 5px !important;
-      font-size: 15px !important;
-      width: auto !important;
-    }
-    
-    .leaflet-popup-content h3,
-    .simple-popup h3 {
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3) !important;
+      background-color: var(--marker-color, #e53935) !important;
+      color: white !important;
       font-size: 18px !important;
-      margin-bottom: 10px !important;
-      padding-bottom: 8px !important;
-      font-weight: bold !important;
+      width: 36px !important;
+      height: 36px !important;
     }
     
-    .leaflet-popup-content p,
-    .simple-popup p {
-      margin: 8px 0 !important;
-      line-height: 1.4 !important;
-      font-size: 15px !important;
+    /* סגנון לחלון מידע */
+    .leaflet-popup-content {
+      direction: rtl;
+      text-align: right;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-width: 200px;
+      max-width: 300px;
+    }
+    
+    .leaflet-popup-content h3 {
+      margin: 0 0 8px 0;
+      color: #e53935;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+    }
+    
+    .leaflet-popup-content p {
+      margin: 5px 0;
     }
     
     .popup-nav-link {
-      padding: 12px !important;
-      margin-top: 12px !important;
-      font-size: 16px !important;
-      font-weight: bold !important;
-      border-radius: 8px !important;
-      display: block !important;
-      text-align: center !important;
+      display: block;
+      background-color: #e53935;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      text-align: center;
+      margin-top: 10px;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      width: 100%;
     }
     
-    .next-location-info {
-      margin: 12px 0 !important;
-      padding: 12px !important;
-      border-radius: 8px !important;
-      background-color: #f8f8f8 !important;
+    /* נקודת התחלה וסיום */
+    .start-end-point {
+      border: 3px solid white !important;
+      z-index: 1000 !important;
     }
-  `;
-  document.head.appendChild(style);
-  
-  // שיפור פונקציית הצגת פופאפ קיימת
-  if (window.showPopup) {
-    const originalShowPopup = window.showPopup;
-    window.showPopup = function() {
-      // הפעלת הפונקציה המקורית
-      originalShowPopup.apply(this, arguments);
-      
-      // שיפור הפופאפ שנוצר
-      const popup = document.getElementById('simple-popup');
-      if (popup) {
-        popup.style.width = '280px';
-        popup.style.maxWidth = '90vw';
-        popup.style.padding = '15px';
-        popup.style.borderRadius = '15px';
-        popup.style.boxShadow = '0 3px 14px rgba(0,0,0,0.3)';
-        
-        // שיפור הטקסט בפופאפ
-        const title = popup.querySelector('h3');
-        if (title) {
-          title.style.fontSize = '18px';
-          title.style.marginBottom = '10px';
-          title.style.paddingBottom = '8px';
-          title.style.borderBottom = '1px solid #ddd';
-        }
-        
-        // שיפור פסקאות טקסט
-        const paragraphs = popup.querySelectorAll('p');
-        paragraphs.forEach(p => {
-          p.style.fontSize = '15px';
-          p.style.lineHeight = '1.4';
-          p.style.margin = '8px 0';
-        });
-        
-        // שיפור כפתורי ניווט
-        const navLinks = popup.querySelectorAll('.popup-nav-link');
-        navLinks.forEach(link => {
-          link.style.padding = '12px';
-          link.style.fontSize = '16px';
-          link.style.fontWeight = 'bold';
-          link.style.borderRadius = '8px';
-          link.style.margin = '12px 0 0 0';
-          link.style.textAlign = 'center';
-          link.style.display = 'block';
-        });
+    
+    /* אנימציה לנקודות על המפה */
+    @keyframes markerPulse {
+      0% {
+        transform: scale(1);
+        opacity: 1;
       }
-    };
-  }
-}
-
-// שיפור כפתורי זום
-function enhanceZoomControls() {
-  const style = document.createElement('style');
-  style.textContent = `
-    .leaflet-control-zoom a {
-      width: 40px !important;
-      height: 40px !important;
-      line-height: 38px !important;
-      font-size: 22px !important;
+      50% {
+        transform: scale(1.1);
+        opacity: 0.9;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+    
+    .map-icon:hover {
+      animation: markerPulse 1s infinite;
+      z-index: 1000 !important;
     }
   `;
   document.head.appendChild(style);
 }
 
-// שיפור פונקציית יצירת סמן
-const originalCreateMarker = window.createMarker;
-if (originalCreateMarker) {
-  window.createMarker = function(location, day) {
-    const marker = originalCreateMarker.apply(this, arguments);
-    
-    // אם זהו מכשיר מובייל, שפר את החזות
-    if (isMobileDevice() && marker) {
-      if (marker.getElement) {
-        const el = marker.getElement();
-        if (el) {
-          el.style.width = '44px';
-          el.style.height = '44px';
-          el.style.fontSize = '22px';
-        }
-      }
-    }
-    
-    return marker;
-  };
-}
-
-// התאמת גודל הטקסט בחלון מידע
-const originalFocusLocationOnMap = window.focusLocationOnMap;
-if (originalFocusLocationOnMap) {
-  window.focusLocationOnMap = function(location) {
-    originalFocusLocationOnMap.apply(this, arguments);
-    
-    if (isMobileDevice()) {
-      // אם יש חלון מידע פתוח, שפר את הנראות שלו
-      setTimeout(() => {
-        const popups = document.querySelectorAll('.leaflet-popup-content, .simple-popup');
-        popups.forEach(popup => {
-          popup.style.fontSize = '15px';
-          
-          const title = popup.querySelector('h3');
-          if (title) {
-            title.style.fontSize = '18px';
-            title.style.marginBottom = '10px';
-          }
-          
-          const paragraphs = popup.querySelectorAll('p');
-          paragraphs.forEach(p => {
-            p.style.fontSize = '15px';
-            p.style.lineHeight = '1.4';
-          });
-          
-          const navLinks = popup.querySelectorAll('.popup-nav-link');
-          navLinks.forEach(link => {
-            link.style.padding = '12px';
-            link.style.fontSize = '16px';
-            link.style.fontWeight = 'bold';
-          });
-        });
-      }, 100);
-    }
-  };
-}
-
-// הוספת המאזין לאחר טעינת המפה
+// בדיקה אם יש יום ממתין להצגה אחרי אתחול המפה
 document.addEventListener('DOMContentLoaded', function() {
-  // הפעלת השיפורים למובייל לאחר טעינת המפה
-  if (isMobileDevice()) {
-    // אם המפה כבר זמינה, הפעל מיד
-    if (window.map) {
-      enhanceMobileMapExperience();
-    } else {
-      // אחרת, המתן לטעינת המפה
-      const checkMap = setInterval(() => {
-        if (window.map) {
-          enhanceMobileMapExperience();
-          clearInterval(checkMap);
-        }
-      }, 100);
-      
-      // הגבל את הבדיקה ל-10 שניות
-      setTimeout(() => clearInterval(checkMap), 10000);
+  setTimeout(function() {
+    if (window.pendingDay && mapInitialized && window.map) {
+      console.log("מציג יום ממתין אחרי אתחול המפה:", window.pendingDay.dayNumber);
+      updateMapForDay(window.pendingDay);
+      delete window.pendingDay;
     }
-  }
+  }, 500); // המתנה קצרה לאחר טעינת הדף
 });

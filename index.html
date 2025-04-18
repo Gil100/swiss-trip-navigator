@@ -1,19 +1,16 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-        <title>Swiss Trip Navigator</title>
-        <!-- הוספת favicon -->
-        <link rel="icon" href="icons/icon-192.png" type="image/png">
-        <link rel="shortcut icon" href="icons/icon-192.png" type="image/png">
-        <link rel="apple-touch-icon" href="icons/icon-192.png">
-        <link rel="manifest" href="manifest.json">
-        <link rel="stylesheet" href="css/style.css">
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swiss Trip Navigator</title>
+    <!-- הוספת favicon -->
+    <link rel="icon" href="icons/icon-192.png" type="image/png">
+    <link rel="shortcut icon" href="icons/icon-192.png" type="image/png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
 <body>
     <!-- מסך פתיחה -->
     <div id="splash-screen">
@@ -32,18 +29,15 @@
         <div id="map-container">
             <div id="map"></div>
         </div>
-
+        
         <div id="itinerary-container">
-    <!-- שינויים במבנה ה-HTML של רשימת המסלול -->
-        <div id="itinerary-container">
-        <div class="drag-handle"></div>
-        <h2>המסלול היומי</h2>
-        <div id="current-day-controls">
-            <button id="prev-day">הקודם</button>
-            <span id="current-day-display">יום 1</span>
-            <button id="next-day">הבא</button>
-        </div>
-        <ul id="itinerary-list"></ul>
+            <h2>המסלול היומי</h2>
+            <div id="current-day-controls">
+                <button id="prev-day">הקודם</button>
+                <span id="current-day-display">יום 1</span>
+                <button id="next-day">הבא</button>
+            </div>
+            <ul id="itinerary-list"></ul>
         </div>
     </main>
 
@@ -69,13 +63,6 @@
     <script src="js/app.js"></script>
     <script src="js/init-map.js"></script>
     
-    <!-- הוספת סקריפט חדש לשיפור חוויית המובייל -->
-    <script src="js/mobile-enhancements.js"></script>
-    <!-- הוספת הסקריפט החדש לתיקון בעיית הניווט -->
-    <script src="js/universal-navigation.js"></script>
-    <!-- הוספת הסקריפט החדש לתיקון בעיית הניווט -->    
-    <script src="js/navigation-fix.js"></script>
-
     <script>
         // טיפול בשגיאות טעינה
         window.addEventListener('error', function(event) {
