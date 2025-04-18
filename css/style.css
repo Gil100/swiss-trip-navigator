@@ -81,6 +81,11 @@ button {
     cursor: pointer;
 }
 
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
 #itinerary-list {
     list-style-type: none;
 }
@@ -193,6 +198,10 @@ button {
 .default { background-color: #757575; }
 .default::after { content: "📍"; }
 
+/* סגנון למלון */
+.hotel { background-color: #4CAF50; }
+.hotel::after { content: "🏨"; }
+
 /* סגנון לכפתור הניווט בתפריט המיקומים */
 .nav-link {
     display: inline-flex;
@@ -274,6 +283,12 @@ button {
     text-align: center;
     border: 2px solid white; /* הוספת מסגרת לבנה */
     box-shadow: 0 0 5px rgba(0,0,0,0.4); /* הוספת צל לבולטות */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    color: white !important;
+    font-size: 18px !important;
 }
 
 .map-icon .icon-inner {
@@ -378,21 +393,21 @@ button {
     justify-content: center;
     transition: opacity 0.5s ease-out;
     cursor: pointer; /* להראות שניתן ללחוץ */
-  }
-  
-  .splash-content {
+}
+
+.splash-content {
     text-align: center;
     padding: 2rem;
-  }
-  
-  .splash-image {
+}
+
+.splash-image {
     max-width: 100%;
     max-height: 60vh;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  }
-  
-  .splash-loader {
+}
+
+.splash-loader {
     margin-top: 20px;
     width: 40px;
     height: 40px;
@@ -401,9 +416,208 @@ button {
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 20px auto 0;
-  }
-  
-  @keyframes spin {
+}
+
+@keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
-  }
+}
+
+/* סגנון לקווי המסלול */
+.leaflet-overlay-pane path {
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* נקודת התחלה וסיום */
+.start-end-point {
+    border: 3px solid white !important;
+    z-index: 1000 !important;
+}
+
+/* אנימציה לנקודות על המפה */
+@keyframes markerPulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.9;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.map-icon:hover {
+    animation: markerPulse 1s infinite;
+    z-index: 1000 !important;
+}
+
+/* סגנון לחלון מידע */
+.leaflet-popup-content {
+    direction: rtl;
+    text-align: right;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-width: 200px;
+    max-width: 300px;
+}
+
+.leaflet-popup-content h3 {
+    margin: 0 0 8px 0;
+    color: #e53935;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.leaflet-popup-content p {
+    margin: 5px 0;
+}
+
+/* שיפור מראה האייקונים באובייקט Leaflet */
+.leaflet-div-icon {
+    background: transparent !important;
+    border: none !important;
+}
+
+/* שיפור מראה האייקונים בחלונות המידע */
+.leaflet-container .leaflet-popup-content-wrapper {
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.leaflet-container .leaflet-popup-tip-container {
+    margin-top: -1px;
+}
+
+/* סגנון לחלון המידע של מפה פשוטה */
+.simple-popup {
+    direction: rtl;
+    text-align: right;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    max-height: 300px;
+    overflow-y: auto;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
+
+.simple-popup h3 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    color: #e53935;
+}
+
+.simple-popup p {
+    margin: 0 0 8px 0;
+}
+
+/* סגנון לקווי קואורדינטות במפה פשוטה */
+.coordinate-line {
+    position: absolute;
+    background-color: rgba(200, 200, 200, 0.2);
+    z-index: 10;
+}
+
+.coordinate-label {
+    position: absolute;
+    font-size: 10px;
+    color: #666;
+    z-index: 15;
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 1px 3px;
+    border-radius: 2px;
+}
+
+/* שיפור מראה כפתורי הזום */
+.leaflet-control-zoom a {
+    color: #333 !important;
+    background-color: white !important;
+}
+
+.leaflet-control-zoom a:hover {
+    background-color: #f2f2f2 !important;
+}
+
+/* בקשה - ודא כי הודעות שגיאה מוצגות בצורה ברורה */
+#error-message {
+    background-color: #f44336;
+    color: white;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* סגנון למחוון טעינה */
+#loading-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 9999;
+}
+
+#loading-indicator > div {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    text-align: center;
+}
+
+/* סגנון לכפתורי ניווט בימים */
+#prev-day, #next-day {
+    padding: 5px 15px;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+#prev-day:hover, #next-day:hover {
+    background-color: #d32f2f;
+}
+
+/* סגנון למצב לא זמין - כפתורים */
+button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+/* שיפור למצב לילה (אופציונלי) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-color: #222;
+        --text-color: #eee;
+    }
+    
+    #itinerary-container {
+        background-color: #333;
+        box-shadow: -2px 0 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .itinerary-item {
+        background-color: #444;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    
+    .itinerary-description {
+        color: #bbb;
+    }
+    
+    .next-location-info {
+        background-color: #3a3a3a;
+    }
+    
+    #day-counter {
+        color: #aaa;
+    }
+}

@@ -22,7 +22,7 @@
     </div>
 
     <header>
-        <h1>Swiss Trip Navigator</h1>
+        <h1>הטיול שלי בשוויץ</h1>
     </header>
     
     <main>
@@ -55,14 +55,13 @@
     <!-- טעינת ספריות וקבצי קוד - סדר חשוב! -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
-    <!-- טעינת תיקון Layer.js לפני שאר הקבצים -->
-    <script src="js/Layer.js"></script>
-    
     <!-- טעינת קבצי האפליקציה -->
     <script src="js/utils.js"></script>
-    <script src="js/itinerary.js"></script>
+    <script src="js/Layer.js"></script>
     <script src="js/map.js"></script>
+    <script src="js/itinerary.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/init-map.js"></script>
     
     <script>
         // טיפול בשגיאות טעינה
@@ -85,3 +84,6 @@
                     .catch(error => console.error('שגיאה ברישום Service Worker:', error));
             });
         }
+    </script>
+</body>
+</html>
