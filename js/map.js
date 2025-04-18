@@ -169,8 +169,44 @@ function showPopup(lat, lng, content) {
       if (popupRect.top < mapRect.top) {
         popup.style.top = `${mapRect.top + 10}px`;
       }
+      
+      // הוספת מאזיני אירועים לכפתורי ניווט
+      setupPopupNavigationButtons();
     }, 0);
   }
+}
+
+// פונקציה להוספת מאזיני אירועים לכפתורי ניווט בחלון המידע
+function setupPopupNavigationButtons() {
+  // מצא את כל כפתורי הניווט בחלון המידע
+  const navButtons = document.querySelectorAll('.popup-nav-link');
+  
+  navButtons.forEach(button => {
+    // בדיקה אם יש לכפתור inline onclick
+    const originalOnClick = button.getAttribute('onclick');
+    if (originalOnClick && originalOnClick.includes('openNavigation')) {
+      // ביטול אירוע מקורי
+      button.removeAttribute('onclick');
+      
+      // חילוץ נתוני המיקום מהקריאה המקורית
+      const match = originalOnClick.match(/openNavigation\(\{coordinates:\s*\[([\d\.-]+),\s*([\d\.-]+)\],\s*title:\s*['"]([^'"]+)['"]/);
+      
+      if (match) {
+        const lat = parseFloat(match[1]);
+        const lng = parseFloat(match[2]);
+        const title = match[3];
+        
+        // הוספת אירוע לחיצה חדש
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          window.openNavigation({
+            coordinates: [lat, lng],
+            title: title
+          });
+        });
+      }
+    }
+  });
 }
 
 // אתחול המפה
@@ -509,7 +545,7 @@ function updateMapForDay(day) {
   }
 }
 
-// יצירת סמן למלון
+// יצירת סמן למלון - קטע מתוקן
 function createHotelMarker(coordinates, title, day) {
   try {
     if (!coordinates || coordinates.length !== 2) {
@@ -519,15 +555,12 @@ function createHotelMarker(coordinates, title, day) {
     
     const [lat, lng] = coordinates;
     
-    // תוכן לחלון המידע
+    // תוכן לחלון המידע - עדכון לשימוש בפונקציית JS במקום inline onclick
     const popupContent = `
       <div class="marker-popup">
         <h3>${title}</h3>
         <p>נקודת מוצא ליום ${day.dayNumber}: ${day.title}</p>
-        <button class="popup-nav-link" onclick="openNavigation({
-          coordinates: [${lat}, ${lng}],
-          title: '${title.replace(/'/g, "\\'")}'
-        })">פתח בניווט</button>
+        <button class="popup-nav-link" id="hotel-nav-button">פתח בניווט</button>
       </div>
     `;
     
@@ -546,7 +579,29 @@ function createHotelMarker(coordinates, title, day) {
         
         if (window.map.addLayer) {
           marker.addTo(window.map);
-          marker.bindPopup(popupContent);
+          
+          // יצירת פופאפ והוספת אירוע לחיצה לאחר פתיחה
+          const popup = L.popup({
+            maxWidth: 300,
+            minWidth: 280,
+            className: 'custom-popup'
+          }).setContent(popupContent);
+          
+          marker.bindPopup(popup);
+          
+          // הוספת מאזין אירוע לאחר פתיחת הפופאפ
+          marker.on('popupopen', function() {
+            const navButton = document.getElementById('hotel-nav-button');
+            if (navButton) {
+              navButton.addEventListener('click', function() {
+                window.openNavigation({
+                  coordinates: [lat, lng],
+                  title: title
+                });
+              });
+            }
+          });
+          
           return marker;
         }
       } catch (e) {
@@ -556,7 +611,29 @@ function createHotelMarker(coordinates, title, day) {
     
     // גישה חלופית - יצירת סמן פשוט
     const simpleMarker = createSimpleMarker(lat, lng, '🏨', '#4CAF50');
+    
+    // עדכון הפונקציה כך שתשתמש באירוע לחיצה במקום inline onclick
     simpleMarker.setPopupContent(popupContent);
+    
+    // הוספת אירוע לאחר הצגת הפופאפ
+    const originalSetPopupContent = simpleMarker.setPopupContent;
+    simpleMarker.setPopupContent = function(content) {
+      originalSetPopupContent.call(this, content);
+      
+      // הוספת מאזין אירוע לכפתור הניווט אחרי הצגת הפופאפ
+      setTimeout(() => {
+        const navButton = document.getElementById('hotel-nav-button');
+        if (navButton) {
+          navButton.addEventListener('click', function() {
+            window.openNavigation({
+              coordinates: [lat, lng],
+              title: title
+            });
+          });
+        }
+      }, 100);
+    };
+    
     return simpleMarker;
     
   } catch (error) {
@@ -565,7 +642,7 @@ function createHotelMarker(coordinates, title, day) {
   }
 }
 
-// יצירת סמן
+// יצירת סמן - קטע מתוקן
 function createMarker(location, day) {
   try {
     console.log(`Creating marker for ${location.title}`);
@@ -595,6 +672,9 @@ function createMarker(location, day) {
       `;
     }
     
+    // עדכון חלון המידע - שימוש ב-ID ייחודי במקום inline onclick
+    const popupId = `popup-nav-${location.id}`;
+    
     // תוכן לחלון המידע עם פורמט משופר וגודל גופן טוב יותר
     const popupContent = `
       <div class="marker-popup">
@@ -602,10 +682,7 @@ function createMarker(location, day) {
         <p><strong>שעה:</strong> ${location.time}</p>
         <p>${location.description}</p>
         ${nextLocationInfo}
-        <button class="popup-nav-link" onclick="openNavigation({
-          coordinates: [${location.coordinates[0]}, ${location.coordinates[1]}],
-          title: '${location.title.replace(/'/g, "\\'")}'
-        })">פתח בניווט</button>
+        <button class="popup-nav-link" id="${popupId}">פתח בניווט</button>
       </div>
     `;
     
@@ -642,6 +719,20 @@ function createMarker(location, day) {
           }).setContent(popupContent);
           
           marker.bindPopup(popup);
+          
+          // הוספת אירוע שיופעל כאשר הפופאפ נפתח
+          marker.on('popupopen', function() {
+            const navButton = document.getElementById(popupId);
+            if (navButton) {
+              navButton.addEventListener('click', function() {
+                window.openNavigation({
+                  coordinates: [lat, lng],
+                  title: location.title
+                });
+              });
+            }
+          });
+          
           marker.on('click', clickHandler);
           return marker;
         }
@@ -654,6 +745,26 @@ function createMarker(location, day) {
     const iconSize = isMobileDevice() ? 44 : 30;
     const simpleMarker = createSimpleMarker(lat, lng, getTypeEmoji(location.type), getTypeColor(location.type), iconSize);
     simpleMarker.setPopupContent(popupContent);
+    
+    // עדכון אירועי לחיצה
+    const originalSetPopupContent = simpleMarker.setPopupContent;
+    simpleMarker.setPopupContent = function(content) {
+      originalSetPopupContent.call(this, content);
+      
+      // הוספת מאזין אירוע לכפתור הניווט אחרי הצגת הפופאפ
+      setTimeout(() => {
+        const navButton = document.getElementById(popupId);
+        if (navButton) {
+          navButton.addEventListener('click', function() {
+            window.openNavigation({
+              coordinates: [lat, lng],
+              title: location.title
+            });
+          });
+        }
+      }, 100);
+    };
+    
     // הוספת אירוע לחיצה
     simpleMarker.element.addEventListener('click', clickHandler);
     return simpleMarker;

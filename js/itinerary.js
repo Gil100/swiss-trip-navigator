@@ -94,6 +94,12 @@ function renderItineraryList(day) {
           <span class="itinerary-title">חזרה למלון</span>
       </div>
       <p class="itinerary-description">סיום יום ${day.dayNumber}: ${day.title}</p>
+      <div class="itinerary-actions">
+          <a href="#" class="nav-link return-nav">
+              <img src="icons/navigation.svg" alt="ניווט" width="18" height="18">
+              ניווט למלון
+          </a>
+      </div>
   `;
   
   // הוספת אירוע לחיצה שיתמקד על המלון במפה
@@ -106,7 +112,64 @@ function renderItineraryList(day) {
       });
   });
   
+  // הוספת אירוע לחיצה לכפתור הניווט למלון
+  const returnNavButton = returnItem.querySelector('.return-nav');
+  if (returnNavButton) {
+      returnNavButton.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          openNavigation({
+              coordinates: [46.6279, 8.0324],
+              title: "המלון - Grindelwald"
+          });
+      });
+  }
+  
   itineraryList.appendChild(returnItem);
+  
+  // שיפור נראות ותגובתיות בגרסת מובייל
+  enhanceMobileListItems();
+}
+
+// שיפור נראות הפריטים במובייל
+function enhanceMobileListItems() {
+    // בדיקה אם המכשיר הוא מובייל
+    if (window.innerWidth >= 768) return;
+    
+    // הוספת סגנון משופר לפריטי הרשימה
+    const items = document.querySelectorAll('.itinerary-item');
+    items.forEach(item => {
+        // הגדלת הפריט עבור נגיעה נוחה יותר
+        item.style.padding = '15px';
+        item.style.marginBottom = '12px';
+        
+        // שיפור הצללה ועיצוב
+        item.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
+        item.style.borderRadius = '10px';
+        
+        // שיפור כפתור הניווט
+        const navLink = item.querySelector('.nav-link');
+        if (navLink) {
+            navLink.style.display = 'flex';
+            navLink.style.alignItems = 'center';
+            navLink.style.justifyContent = 'center';
+            navLink.style.padding = '10px';
+            navLink.style.backgroundColor = '#e53935';
+            navLink.style.color = 'white';
+            navLink.style.borderRadius = '8px';
+            navLink.style.fontWeight = 'bold';
+            navLink.style.textDecoration = 'none';
+            navLink.style.margin = '10px 0 0 0';
+            
+            // הוספת אייקון ניווט אם חסר
+            if (!navLink.querySelector('img')) {
+                const navigationIcon = document.createElement('span');
+                navigationIcon.textContent = '🧭 ';
+                navigationIcon.style.marginLeft = '5px';
+                navLink.prepend(navigationIcon);
+            }
+        }
+    });
 }
 
 // פונקציה להדגשת פריט מסלול ברשימה
@@ -138,27 +201,65 @@ function highlightItineraryItem(locationId) {
 function openNavigation(location) {
   // בדיקה האם המשתמש במכשיר נייד
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  
+  // וידוא שיש קואורדינטות
+  if (!location || !location.coordinates || location.coordinates.length !== 2) {
+    console.error("Invalid location data for navigation");
+    return;
+  }
+  
   const [lat, lng] = location.coordinates;
   
   if (isMobile) {
     // יצירת שכבת הצללה
     const overlay = document.createElement('div');
     overlay.className = 'overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.right = '0';
+    overlay.style.bottom = '0';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    overlay.style.zIndex = '2000';
+    overlay.style.display = 'flex';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+    
     document.body.appendChild(overlay);
-    overlay.style.display = 'block';
     
     // יצירת תפריט בחירה
     const navOptions = document.createElement('div');
     navOptions.className = 'nav-options';
+    navOptions.style.backgroundColor = 'white';
+    navOptions.style.padding = '20px';
+    navOptions.style.borderRadius = '12px';
+    navOptions.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+    navOptions.style.width = '90%';
+    navOptions.style.maxWidth = '350px';
+    navOptions.style.textAlign = 'center';
+    navOptions.style.position = 'relative';
+    navOptions.style.direction = 'rtl';
+    
+    const locationTitle = location.title || 'יעד';
+    
     navOptions.innerHTML = `
-        <div class="nav-title">בחר אפליקציית ניווט:</div>
-        <div class="nav-buttons">
-        <button class="nav-google">Google Maps</button>
-        <button class="nav-waze">Waze</button>
+        <div style="position: absolute; top: 10px; left: 10px; font-size: 24px; cursor: pointer;">&times;</div>
+        <div style="font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #e53935;">ניווט אל: ${locationTitle}</div>
+        <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+            <button class="nav-google" style="padding: 12px; background-color: #4285F4; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                <span style="margin-right: 8px;">Google Maps</span>
+            </button>
+            <button class="nav-waze" style="padding: 12px; background-color: #33CCFF; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                <span style="margin-right: 8px;">Waze</span>
+            </button>
         </div>
     `;
     
-    document.body.appendChild(navOptions);
+    overlay.appendChild(navOptions);
+    
+    // סגירת התפריט בלחיצה על X
+    const closeButton = navOptions.querySelector('div[style*="position: absolute"]');
+    closeButton.addEventListener('click', cleanup);
     
     // הוספת אירועי לחיצה
     navOptions.querySelector('.nav-google').addEventListener('click', () => {
@@ -172,11 +273,14 @@ function openNavigation(location) {
     });
     
     // סגירת התפריט בלחיצה על ההצללה
-    overlay.addEventListener('click', cleanup);
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            cleanup();
+        }
+    });
     
     function cleanup() {
         document.body.removeChild(overlay);
-        document.body.removeChild(navOptions);
     }
   } else {
     // במחשב נפתח ישירות בגוגל מפות
