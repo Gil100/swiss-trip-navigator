@@ -592,6 +592,162 @@ button:disabled {
     cursor: not-allowed;
 }
 
+/* הוסף את הקוד הזה בסוף קובץ style.css הקיים */
+
+/* ==== תיקונים לתצוגה במובייל ==== */
+
+/* שיפור תצוגת חלון מידע במובייל */
+.leaflet-popup-content {
+    font-size: 16px; /* טקסט גדול יותר לקריאות טובה יותר במובייל */
+    max-width: 90vw; /* ודא שחלון המידע לא חורג מרוחב המסך */
+    width: 280px; /* קבע רוחב קבוע לשליטה טובה יותר בפריסה */
+  }
+  
+  .leaflet-popup-content h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    font-weight: bold;
+    color: var(--primary-color);
+  }
+  
+  .leaflet-popup-content p {
+    margin: 8px 0;
+    line-height: 1.4;
+  }
+  
+  /* הפוך את כפתור הניווט לבולט יותר */
+  .popup-nav-link {
+    padding: 10px 15px;
+    font-size: 16px;
+    margin-top: 15px;
+    font-weight: bold;
+  }
+  
+  /* התאמת סגנונות לחלון מידע פשוט לתצוגה טובה יותר במובייל */
+  .simple-popup {
+    font-size: 16px;
+    padding: 15px;
+    width: 280px;
+    max-width: 90vw;
+  }
+  
+  .simple-popup h3 {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--primary-color);
+  }
+  
+  /* סגנון פריטי המלון ברשימה */
+  .hotel-item, .return-item {
+    background-color: #f5f5f5;
+    border-right: 3px solid #4CAF50;
+  }
+  
+  .hotel-item .itinerary-title, .return-item .itinerary-title {
+    color: #4CAF50;
+    font-weight: bold;
+  }
+  
+  /* תצוגת פריט מסלול טובה יותר במובייל */
+  @media (max-width: 767px) {
+    .itinerary-item {
+      padding: 15px;
+      margin-bottom: 10px;
+    }
+    
+    .itinerary-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--primary-color);
+      /* ודא שהטקסט נעטף כראוי */
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      max-width: 100%;
+    }
+    
+    .itinerary-time {
+      font-size: 15px;
+      font-weight: bold;
+      min-width: 60px; /* ודא שיש מספיק מקום לזמן */
+    }
+    
+    .itinerary-description {
+      font-size: 14px;
+      margin: 8px 0;
+      line-height: 1.4;
+    }
+    
+    /* שיפור תצוגת חלון המידע במסכים קטנים */
+    .leaflet-popup {
+      max-width: 90vw;
+    }
+    
+    .location-icon {
+      width: 36px;
+      height: 36px;
+      font-size: 18px;
+    }
+    
+    /* סמני מפה גדולים יותר לנגיעה קלה יותר */
+    .map-icon {
+      width: 44px !important;
+      height: 44px !important;
+      font-size: 22px !important;
+    }
+    
+    /* התאמת כותרת למובייל */
+    header h1 {
+      font-size: 20px;
+      text-align: center;
+      width: 100%;
+    }
+    
+    /* שיפור קריאות תוכן חלון המידע */
+    .next-location-info {
+      background-color: #f0f0f0;
+      padding: 10px;
+      border-radius: 6px;
+      margin: 12px 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    /* ודא שלמכל המסלול יש מספיק מקום */
+    #itinerary-container {
+      padding: 15px;
+      max-height: 45vh; /* מעט קטן יותר כדי להבטיח שאינו חופף יותר מדי */
+    }
+    
+    /* הפוך כפתורים לקלים יותר לנגיעה */
+    button, .nav-link {
+      padding: 10px 15px;
+      font-size: 15px;
+      min-height: 44px; /* גודל המטרה המינימלי המומלץ של אפל */
+    }
+    
+    /* שיפור תצוגת היום הנוכחי */
+    #current-day-display {
+      font-size: 16px;
+      font-weight: bold;
+      max-width: 200px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+  }
+  
+  /* תמיכה בערכת נושא כהה */
+  @media (prefers-color-scheme: dark) {
+    .simple-popup, .leaflet-popup-content-wrapper {
+      background-color: #333;
+      color: #eee;
+    }
+    
+    .next-location-info {
+      background-color: #444;
+    }
+  }
+
 /* שיפור למצב לילה (אופציונלי) */
 @media (prefers-color-scheme: dark) {
     :root {

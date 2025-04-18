@@ -9,7 +9,10 @@
       
       if (isLeafletAvailable) {
         console.log("Leaflet is available, initializing map");
-        initLeafletMap();
+        // קצת עיכוב לוודא שה-DOM מוכן לחלוטין
+        setTimeout(() => {
+          initLeafletMap();
+        }, 100);
       } else {
         console.log("Leaflet not available, waiting for it to load");
         // המתנה קצרה לטעינת Leaflet
@@ -31,11 +34,29 @@
     // אתחול מפה באמצעות Leaflet
     function initLeafletMap() {
       try {
+        // בדיקה אם יש כבר אובייקט מפה קיים
+        if (window.map && window.map._container) {
+          console.log("Map already initialized, using existing map");
+          return;
+        }
+        
         // ודא שאלמנט המפה קיים
         const mapElement = document.getElementById('map');
         if (!mapElement) {
           console.error("Map element not found");
           return;
+        }
+        
+        // בדיקה אם יש כבר מפה קיימת על האלמנט
+        if (mapElement._leaflet_id) {
+          console.warn("Map container is already initialized, clearing it first");
+          try {
+            // מנסה לנקות את האלמנט
+            mapElement.innerHTML = '';
+            mapElement._leaflet_id = null;
+          } catch (e) {
+            console.error("Failed to clear existing map element:", e);
+          }
         }
         
         // אתחול מפת Leaflet
