@@ -96,6 +96,18 @@
         
         console.log("Leaflet map initialized successfully");
         
+        // התאמות למובייל - מוגדל יותר ומותאם יותר למגע
+        if (window.innerWidth < 768) {
+          // הגדל את כפתורי הזום
+          const zoomControls = document.querySelectorAll('.leaflet-control-zoom a');
+          zoomControls.forEach(btn => {
+            btn.style.fontSize = '22px';
+            btn.style.width = '40px';
+            btn.style.height = '40px';
+            btn.style.lineHeight = '38px';
+          });
+        }
+        
         // הצגת היום הנוכחי על המפה (אם הנתונים כבר נטענו)
         if (window.appState && window.appState.isDataLoaded) {
           const currentDay = window.appState.itineraryData.days[window.appState.currentDayIndex];

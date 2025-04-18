@@ -1047,3 +1047,264 @@ if (window.pendingDay && mapInitialized && window.map) {
 }
 }, 500); // המתנה קצרה לאחר טעינת הדף
 });
+
+// הוסף את הקוד הבא בסוף קובץ map.js הקיים
+// תוספות אלו משפרות את חוויית המשתמש במובייל
+
+// בדיקה האם המכשיר הוא מובייל
+function isMobileDevice() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+}
+
+// שיפורים לתצוגת המפה במובייל
+function enhanceMobileMapExperience() {
+  if (!isMobileDevice()) return;
+  
+  console.log("Enhancing map for mobile experience");
+  
+  // שיפור סמני המפה
+  enhanceMapMarkers();
+  
+  // שיפור חלונות המידע (פופאפים)
+  enhanceInfoPopups();
+  
+  // שיפור כפתורי זום
+  enhanceZoomControls();
+}
+
+// שיפור סמני המפה - גודל גדול יותר לנגיעה קלה יותר
+function enhanceMapMarkers() {
+  const style = document.createElement('style');
+  style.textContent = `
+    .map-icon, .simple-marker {
+      width: 44px !important;
+      height: 44px !important;
+      font-size: 22px !important;
+      border: 2px solid white !important;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4) !important;
+    }
+    
+    .map-icon .icon-inner {
+      font-size: 22px !important;
+    }
+    
+    /* הגדלת אזור הנגיעה */
+    .leaflet-marker-icon {
+      padding: 5px;
+      margin-top: -5px;
+      margin-left: -5px;
+    }
+  `;
+  document.head.appendChild(style);
+  
+  // עדכון סמנים קיימים
+  if (window.markers && window.markers.length) {
+    window.markers.forEach(marker => {
+      if (marker.getElement) {
+        const el = marker.getElement();
+        if (el) {
+          el.style.width = '44px';
+          el.style.height = '44px';
+          el.style.fontSize = '22px';
+        }
+      }
+    });
+  }
+}
+
+// שיפור חלונות המידע
+function enhanceInfoPopups() {
+  const style = document.createElement('style');
+  style.textContent = `
+    .leaflet-popup-content-wrapper,
+    .simple-popup {
+      width: 280px !important;
+      max-width: 90vw !important;
+      padding: 15px !important;
+      border-radius: 15px !important;
+    }
+    
+    .leaflet-popup-content,
+    .simple-popup {
+      margin: 5px !important;
+      font-size: 15px !important;
+      width: auto !important;
+    }
+    
+    .leaflet-popup-content h3,
+    .simple-popup h3 {
+      font-size: 18px !important;
+      margin-bottom: 10px !important;
+      padding-bottom: 8px !important;
+      font-weight: bold !important;
+    }
+    
+    .leaflet-popup-content p,
+    .simple-popup p {
+      margin: 8px 0 !important;
+      line-height: 1.4 !important;
+      font-size: 15px !important;
+    }
+    
+    .popup-nav-link {
+      padding: 12px !important;
+      margin-top: 12px !important;
+      font-size: 16px !important;
+      font-weight: bold !important;
+      border-radius: 8px !important;
+      display: block !important;
+      text-align: center !important;
+    }
+    
+    .next-location-info {
+      margin: 12px 0 !important;
+      padding: 12px !important;
+      border-radius: 8px !important;
+      background-color: #f8f8f8 !important;
+    }
+  `;
+  document.head.appendChild(style);
+  
+  // שיפור פונקציית הצגת פופאפ קיימת
+  if (window.showPopup) {
+    const originalShowPopup = window.showPopup;
+    window.showPopup = function() {
+      // הפעלת הפונקציה המקורית
+      originalShowPopup.apply(this, arguments);
+      
+      // שיפור הפופאפ שנוצר
+      const popup = document.getElementById('simple-popup');
+      if (popup) {
+        popup.style.width = '280px';
+        popup.style.maxWidth = '90vw';
+        popup.style.padding = '15px';
+        popup.style.borderRadius = '15px';
+        popup.style.boxShadow = '0 3px 14px rgba(0,0,0,0.3)';
+        
+        // שיפור הטקסט בפופאפ
+        const title = popup.querySelector('h3');
+        if (title) {
+          title.style.fontSize = '18px';
+          title.style.marginBottom = '10px';
+          title.style.paddingBottom = '8px';
+          title.style.borderBottom = '1px solid #ddd';
+        }
+        
+        // שיפור פסקאות טקסט
+        const paragraphs = popup.querySelectorAll('p');
+        paragraphs.forEach(p => {
+          p.style.fontSize = '15px';
+          p.style.lineHeight = '1.4';
+          p.style.margin = '8px 0';
+        });
+        
+        // שיפור כפתורי ניווט
+        const navLinks = popup.querySelectorAll('.popup-nav-link');
+        navLinks.forEach(link => {
+          link.style.padding = '12px';
+          link.style.fontSize = '16px';
+          link.style.fontWeight = 'bold';
+          link.style.borderRadius = '8px';
+          link.style.margin = '12px 0 0 0';
+          link.style.textAlign = 'center';
+          link.style.display = 'block';
+        });
+      }
+    };
+  }
+}
+
+// שיפור כפתורי זום
+function enhanceZoomControls() {
+  const style = document.createElement('style');
+  style.textContent = `
+    .leaflet-control-zoom a {
+      width: 40px !important;
+      height: 40px !important;
+      line-height: 38px !important;
+      font-size: 22px !important;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+// שיפור פונקציית יצירת סמן
+const originalCreateMarker = window.createMarker;
+if (originalCreateMarker) {
+  window.createMarker = function(location, day) {
+    const marker = originalCreateMarker.apply(this, arguments);
+    
+    // אם זהו מכשיר מובייל, שפר את החזות
+    if (isMobileDevice() && marker) {
+      if (marker.getElement) {
+        const el = marker.getElement();
+        if (el) {
+          el.style.width = '44px';
+          el.style.height = '44px';
+          el.style.fontSize = '22px';
+        }
+      }
+    }
+    
+    return marker;
+  };
+}
+
+// התאמת גודל הטקסט בחלון מידע
+const originalFocusLocationOnMap = window.focusLocationOnMap;
+if (originalFocusLocationOnMap) {
+  window.focusLocationOnMap = function(location) {
+    originalFocusLocationOnMap.apply(this, arguments);
+    
+    if (isMobileDevice()) {
+      // אם יש חלון מידע פתוח, שפר את הנראות שלו
+      setTimeout(() => {
+        const popups = document.querySelectorAll('.leaflet-popup-content, .simple-popup');
+        popups.forEach(popup => {
+          popup.style.fontSize = '15px';
+          
+          const title = popup.querySelector('h3');
+          if (title) {
+            title.style.fontSize = '18px';
+            title.style.marginBottom = '10px';
+          }
+          
+          const paragraphs = popup.querySelectorAll('p');
+          paragraphs.forEach(p => {
+            p.style.fontSize = '15px';
+            p.style.lineHeight = '1.4';
+          });
+          
+          const navLinks = popup.querySelectorAll('.popup-nav-link');
+          navLinks.forEach(link => {
+            link.style.padding = '12px';
+            link.style.fontSize = '16px';
+            link.style.fontWeight = 'bold';
+          });
+        });
+      }, 100);
+    }
+  };
+}
+
+// הוספת המאזין לאחר טעינת המפה
+document.addEventListener('DOMContentLoaded', function() {
+  // הפעלת השיפורים למובייל לאחר טעינת המפה
+  if (isMobileDevice()) {
+    // אם המפה כבר זמינה, הפעל מיד
+    if (window.map) {
+      enhanceMobileMapExperience();
+    } else {
+      // אחרת, המתן לטעינת המפה
+      const checkMap = setInterval(() => {
+        if (window.map) {
+          enhanceMobileMapExperience();
+          clearInterval(checkMap);
+        }
+      }, 100);
+      
+      // הגבל את הבדיקה ל-10 שניות
+      setTimeout(() => clearInterval(checkMap), 10000);
+    }
+  }
+});
