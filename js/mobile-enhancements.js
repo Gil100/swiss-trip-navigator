@@ -320,3 +320,172 @@ document.addEventListener('DOMContentLoaded', function() {
       dayDisplay.style.whiteSpace = 'nowrap';
     }
   }
+
+// תיקון למצב בו לא ניתן לבחור ימים במובייל - קוד להוספה לקובץ mobile-enhancements.js
+
+// בסוף קובץ mobile-enhancements.js הוסף:
+
+// הוספת כפתור לחיצה קבוע למעבר בין ימים
+function addFixedDaySelector() {
+    // בדיקה אם כבר הוספנו את הכפתור
+    if (document.getElementById('mobile-day-selector')) return;
+    
+    // יצירת כפתור בחירת יום
+    const daySelectorButton = document.createElement('button');
+    daySelectorButton.id = 'mobile-day-selector';
+    daySelectorButton.innerHTML = '📅';
+    daySelectorButton.className = 'mobile-menu-button';
+    
+    // הוספת סגנון
+    const style = document.createElement('style');
+    style.textContent = `
+      .mobile-menu-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-color: #e53935;
+        color: white;
+        font-size: 24px;
+        border: none;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .days-menu {
+        position: fixed;
+        bottom: 85px;
+        right: 20px;
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        padding: 8px;
+        z-index: 999;
+        max-height: 70vh;
+        overflow-y: auto;
+        transform: scale(0);
+        transform-origin: bottom right;
+        transition: transform 0.2s ease-out;
+        direction: rtl;
+      }
+      
+      .days-menu.open {
+        transform: scale(1);
+      }
+      
+      .days-menu ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      
+      .days-menu li {
+        padding: 10px 15px;
+        border-bottom: 1px solid #eee;
+        font-weight: bold;
+      }
+      
+      .days-menu li:last-child {
+        border-bottom: none;
+      }
+      
+      .days-menu li.active {
+        background-color: #f0f0f0;
+        color: #e53935;
+        border-right: 3px solid #e53935;
+      }
+      
+      .days-menu h3 {
+        margin: 0 0 10px 0;
+        padding: 10px;
+        text-align: center;
+        border-bottom: 1px solid #eee;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // יצירת תפריט בחירת ימים
+    const daysMenu = document.createElement('div');
+    daysMenu.className = 'days-menu';
+    daysMenu.innerHTML = '<h3>בחר יום במסלול</h3><ul id="days-list"></ul>';
+    
+    // הוספה לגוף המסמך
+    document.body.appendChild(daySelectorButton);
+    document.body.appendChild(daysMenu);
+    
+    // מאזין לחיצה להצגת התפריט
+    daySelectorButton.addEventListener('click', function(e) {
+      e.stopPropagation();
+      
+      // מילוי התפריט בימים הקיימים
+      fillDaysMenu();
+      
+      // הצגת או הסתרת התפריט
+      daysMenu.classList.toggle('open');
+    });
+    
+    // סגירת התפריט בלחיצה מחוץ לתפריט
+    document.addEventListener('click', function(e) {
+      if (!daysMenu.contains(e.target) && e.target !== daySelectorButton) {
+        daysMenu.classList.remove('open');
+      }
+    });
+    
+    // פונקציה למילוי התפריט בימים
+    function fillDaysMenu() {
+      if (!window.appState || !window.appState.itineraryData) return;
+      
+      const daysList = document.getElementById('days-list');
+      if (!daysList) return;
+      
+      // ניקוי הרשימה
+      daysList.innerHTML = '';
+      
+      // הוספת כל הימים
+      const days = window.appState.itineraryData.days;
+      days.forEach((day, index) => {
+        const li = document.createElement('li');
+        li.textContent = `יום ${day.dayNumber}: ${day.title}`;
+        
+        // סימון היום הנוכחי
+        if (index === window.appState.currentDayIndex) {
+          li.className = 'active';
+        }
+        
+        // מאזין לחיצה למעבר ליום הנבחר
+        li.addEventListener('click', function() {
+          window.appState.currentDayIndex = index;
+          window.showCurrentDay();
+          daysMenu.classList.remove('open');
+        });
+        
+        daysList.appendChild(li);
+      });
+    }
+  }
+  
+  // הוספת פונקציה לקבלת יום במסלול
+  function getDayInfo(dayIndex) {
+    if (!window.appState || !window.appState.itineraryData) return null;
+    
+    const days = window.appState.itineraryData.days;
+    if (dayIndex >= 0 && dayIndex < days.length) {
+      return days[dayIndex];
+    }
+    
+    return null;
+  }
+  
+  // עדכון הפונקציה enhanceMobileExperience להפעיל את התכונה החדשה
+  const originalEnhanceMobileExperience = enhanceMobileExperience;
+  enhanceMobileExperience = function() {
+    originalEnhanceMobileExperience();
+    
+    // הוספת כפתור בחירת יום
+    addFixedDaySelector();
+  };

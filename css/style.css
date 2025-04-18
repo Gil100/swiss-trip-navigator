@@ -957,7 +957,142 @@ button:disabled {
       overscroll-behavior: contain;
       -webkit-overflow-scrolling: touch;
     }
-  }  
+  }
+
+/* סגנונות לתפריט הימים במובייל - להוסיף לקובץ style.css */
+
+/* כפתור בחירת יום */
+.mobile-menu-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 24px;
+    border: none;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* אנימציה בלחיצה */
+  .mobile-menu-button:active {
+    transform: scale(0.95);
+  }
+  
+  /* תפריט בחירת ימים */
+  .days-menu {
+    position: fixed;
+    bottom: 85px;
+    right: 20px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    padding: 8px;
+    z-index: 999;
+    max-height: 70vh;
+    overflow-y: auto;
+    transform: scale(0);
+    transform-origin: bottom right;
+    transition: transform 0.2s ease-out;
+    direction: rtl;
+    min-width: 250px;
+    max-width: 90vw;
+  }
+  
+  .days-menu.open {
+    transform: scale(1);
+  }
+  
+  .days-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .days-menu li {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 8px;
+    margin: 3px 0;
+    transition: background-color 0.2s;
+  }
+  
+  .days-menu li:hover {
+    background-color: #f8f8f8;
+  }
+  
+  .days-menu li:last-child {
+    border-bottom: none;
+  }
+  
+  .days-menu li.active {
+    background-color: #f0f0f0;
+    color: var(--primary-color);
+    border-right: 3px solid var(--primary-color);
+  }
+  
+  .days-menu h3 {
+    margin: 0 0 10px 0;
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    color: var(--primary-color);
+    font-size: 16px;
+  }
+  
+  /* צביטה במסך מגע */
+  .days-menu {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  
+  /* תיקון למצב טעינה */
+  @media (max-width: 767px) {
+    #loading-indicator {
+      z-index: 1001; /* מעל כפתור התפריט */
+    }
+    
+    /* מנע הסתרה בגלישה */
+    .mobile-menu-button {
+      bottom: 20px !important;
+      position: fixed !important;
+    }
+  }
+  
+  /* תמיכה במצב כהה */
+  @media (prefers-color-scheme: dark) {
+    .days-menu {
+      background-color: #333;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    }
+    
+    .days-menu li {
+      border-bottom-color: #444;
+      color: #eee;
+    }
+    
+    .days-menu li:hover {
+      background-color: #444;
+    }
+    
+    .days-menu li.active {
+      background-color: #444;
+    }
+    
+    .days-menu h3 {
+      border-bottom-color: #444;
+    }
+  }
 
 /* שיפור למצב לילה (אופציונלי) */
 @media (prefers-color-scheme: dark) {
