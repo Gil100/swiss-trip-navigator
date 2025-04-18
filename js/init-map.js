@@ -37,6 +37,16 @@
         // בדיקה אם יש כבר אובייקט מפה קיים
         if (window.map && window.map._container) {
           console.log("Map already initialized, using existing map");
+          
+          // עדיין עדכן את המפה עם היום הנוכחי אם צריך
+          if (window.appState && window.appState.isDataLoaded) {
+            const currentDay = window.appState.itineraryData.days[window.appState.currentDayIndex];
+            if (typeof updateMapForDay === 'function') {
+              setTimeout(() => updateMapForDay(currentDay), 100);
+            }
+          } else if (window.pendingDay && typeof updateMapForDay === 'function') {
+            setTimeout(() => updateMapForDay(window.pendingDay), 100);
+          }
           return;
         }
         

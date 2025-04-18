@@ -142,44 +142,49 @@ function openNavigation(location) {
   
   if (isMobile) {
     // יצירת שכבת הצללה
-  const overlay = document.createElement('div');
-  overlay.className = 'overlay';
-  document.body.appendChild(overlay);
-  overlay.style.display = 'block';
-  
+    const overlay = document.createElement('div');
+    overlay.className = 'overlay';
+    document.body.appendChild(overlay);
+    overlay.style.display = 'block';
+    
     // יצירת תפריט בחירה
-  const navOptions = document.createElement('div');
-  navOptions.className = 'nav-options';
-  navOptions.innerHTML = `
-      <div class="nav-title">בחר אפליקציית ניווט:</div>
-      <div class="nav-buttons">
-      <button class="nav-google">Google Maps</button>
-      <button class="nav-waze">Waze</button>
-      </div>
-  `;
-  
-  document.body.appendChild(navOptions);
-  
+    const navOptions = document.createElement('div');
+    navOptions.className = 'nav-options';
+    navOptions.innerHTML = `
+        <div class="nav-title">בחר אפליקציית ניווט:</div>
+        <div class="nav-buttons">
+        <button class="nav-google">Google Maps</button>
+        <button class="nav-waze">Waze</button>
+        </div>
+    `;
+    
+    document.body.appendChild(navOptions);
+    
     // הוספת אירועי לחיצה
-  navOptions.querySelector('.nav-google').addEventListener('click', () => {
-      window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank');
-      cleanup();
-  });
-  
-  navOptions.querySelector('.nav-waze').addEventListener('click', () => {
-      window.open(`https://waze.com/ul?ll=${lat},${lng}&navigate=yes`, '_blank');
-      cleanup();
-  });
-  
+    navOptions.querySelector('.nav-google').addEventListener('click', () => {
+        window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank');
+        cleanup();
+    });
+    
+    navOptions.querySelector('.nav-waze').addEventListener('click', () => {
+        window.open(`https://waze.com/ul?ll=${lat},${lng}&navigate=yes`, '_blank');
+        cleanup();
+    });
+    
     // סגירת התפריט בלחיצה על ההצללה
-  overlay.addEventListener('click', cleanup);
-  
-  function cleanup() {
-      document.body.removeChild(overlay);
-      document.body.removeChild(navOptions);
-  }
+    overlay.addEventListener('click', cleanup);
+    
+    function cleanup() {
+        document.body.removeChild(overlay);
+        document.body.removeChild(navOptions);
+    }
   } else {
     // במחשב נפתח ישירות בגוגל מפות
-  window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank');
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank');
   }
 }
+
+// הפיכת הפונקציה לגלובלית
+window.openNavigation = openNavigation;
+// הפיכת פונקציית renderItineraryList לגלובלית
+window.renderItineraryList = renderItineraryList;

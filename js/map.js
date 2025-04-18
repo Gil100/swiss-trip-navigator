@@ -946,108 +946,103 @@ default: return '#e53935';
 
 // הוספת סגנון CSS למפה
 function addMapStyles() {
-const style = document.createElement('style');
-style.textContent = `
-.map-icon.hotel .icon-inner:after {
-  content: '🏨';
-}
-
-/* סגנון לקווי המסלול */
-.leaflet-overlay-pane path {
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-/* שיפור מראה האייקונים */
-.map-icon {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  border-radius: 50% !important;
-  border: 2px solid white !important;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3) !important;
-  background-color: var(--marker-color, #e53935) !important;
-  color: white !important;
-  font-size: 18px !important;
-  width: 36px !important;
-  height: 36px !important;
-}
-
-/* סגנון לחלון מידע */
-.leaflet-popup-content {
-  direction: rtl;
-  text-align: right;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  min-width: 200px;
-  max-width: 300px;
-}
-
-.leaflet-popup-content h3 {
-  margin: 0 0 8px 0;
-  color: #e53935;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 5px;
-}
-
-.leaflet-popup-content p {
-  margin: 5px 0;
-}
-
-.popup-nav-link {
-  display: block;
-  background-color: #e53935;
-  color: white;
-  padding: 8px 12px;
-  border-radius: 4px;
-  text-align: center;
-  margin-top: 10px;
-  text-decoration: none;
-  cursor: pointer;
-  border: none;
-  width: 100%;
-}
-
-/* נקודת התחלה וסיום */
-.start-end-point {
-  border: 3px solid white !important;
-  z-index: 1000 !important;
-}
-
-/* אנימציה לנקודות על המפה */
-@keyframes markerPulse {
-  0% {
-    transform: scale(1);
-    opacity: 1;
+  // הסרת סגנונות קיימים כדי למנוע כפילות
+  const existingStyle = document.getElementById('map-custom-styles');
+  if (existingStyle) {
+    existingStyle.remove();
   }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.9;
+
+  const style = document.createElement('style');
+  style.id = 'map-custom-styles';
+  style.textContent = `
+  .map-icon.hotel .icon-inner:after {
+    content: '🏨';
   }
-  100% {
-    transform: scale(1);
-    opacity: 1;
+
+  /* סגנון לקווי המסלול */
+  .leaflet-overlay-pane path {
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
-}
 
-.map-icon:hover {
-  animation: markerPulse 1s infinite;
-  z-index: 1000 !important;
-}
-`;
-document.head.appendChild(style);
-}
+  /* שיפור מראה האייקונים */
+  .map-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    border: 2px solid white !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3) !important;
+    background-color: var(--marker-color, #e53935) !important;
+    color: white !important;
+    font-size: 18px !important;
+    width: 36px !important;
+    height: 36px !important;
+  }
 
-// בדיקה אם יש יום ממתין להצגה אחרי אתחול המפה
-document.addEventListener('DOMContentLoaded', function() {
-setTimeout(function() {
-if (window.pendingDay && mapInitialized && window.map) {
-  console.log("מציג יום ממתין אחרי אתחול המפה:", window.pendingDay.dayNumber);
-  updateMapForDay(window.pendingDay);
-  delete window.pendingDay;
-}
-}, 500); // המתנה קצרה לאחר טעינת הדף
-});
+  /* סגנון לחלון מידע */
+  .leaflet-popup-content {
+    direction: rtl;
+    text-align: right;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-width: 200px;
+    max-width: 300px;
+  }
 
+  .leaflet-popup-content h3 {
+    margin: 0 0 8px 0;
+    color: #e53935;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+  }
+
+  .leaflet-popup-content p {
+    margin: 5px 0;
+  }
+
+  .popup-nav-link {
+    display: block;
+    background-color: #e53935;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    text-align: center;
+    margin-top: 10px;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    width: 100%;
+  }
+
+  /* נקודת התחלה וסיום */
+  .start-end-point {
+    border: 3px solid white !important;
+    z-index: 1000 !important;
+  }
+
+  /* אנימציה לנקודות על המפה */
+  @keyframes markerPulse {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 0.9;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .map-icon:hover {
+    animation: markerPulse 1s infinite;
+    z-index: 1000 !important;
+  }
+  `;
+  document.head.appendChild(style);
+}
 // הוסף את הקוד הבא בסוף קובץ map.js הקיים
 // תוספות אלו משפרות את חוויית המשתמש במובייל
 

@@ -501,3 +501,11 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // הפעל את השיפורים למובייל בטעינת הדף
   window.addEventListener('load', enhanceMobilePopups);
+
+  // פונקציית גישה גלובלית למצב האפליקציה
+window.getAppState = function() {
+    return appState;
+  };
+  
+  // וידוא שפונקציית showCurrentDay זמינה גלובלית
+  window.showCurrentDay = showCurrentDay;
